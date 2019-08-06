@@ -272,10 +272,7 @@ class CalendarMonthGrid extends React.PureComponent {
     const isVerticalScrollable = orientation === VERTICAL_SCROLLABLE;
     const isHorizontal = orientation === HORIZONTAL_ORIENTATION;
 
-    const calendarMonthWidth = getCalendarMonthWidth(
-      daySize,
-      horizontalMonthPadding,
-    );
+    const calendarMonthWidth = getCalendarMonthWidth(daySize, horizontalMonthPadding) + 120;
 
     const width = isVertical || isVerticalScrollable
       ? calendarMonthWidth
@@ -304,29 +301,35 @@ class CalendarMonthGrid extends React.PureComponent {
         onTransitionEnd={onMonthTransitionEnd}
       >
         {months.map((month, i) => {
-          const isVisible = (i >= firstVisibleMonthIndex)
-            && (i < firstVisibleMonthIndex + numberOfMonths);
+          const isVisible =
+            i >= firstVisibleMonthIndex && i < firstVisibleMonthIndex + numberOfMonths;
           const hideForAnimation = i === 0 && !isVisible;
           const showForAnimation = i === 0 && isAnimating && isVisible;
           const monthString = toISOMonthString(month);
+
           return (
             <div
               key={monthString}
               {...css(
                 isHorizontal && styles.CalendarMonthGrid_month__horizontal,
                 hideForAnimation && styles.CalendarMonthGrid_month__hideForAnimation,
-                showForAnimation && !isVertical && !isRTL && {
-                  position: 'absolute',
-                  left: -calendarMonthWidth,
-                },
-                showForAnimation && !isVertical && isRTL && {
-                  position: 'absolute',
-                  right: 0,
-                },
-                showForAnimation && isVertical && {
-                  position: 'absolute',
-                  top: -translationValue,
-                },
+                showForAnimation &&
+                  !isVertical &&
+                  !isRTL && {
+                    position: 'absolute',
+                    left: -calendarMonthWidth,
+                  },
+                showForAnimation &&
+                  !isVertical &&
+                  isRTL && {
+                    position: 'absolute',
+                    right: 0,
+                  },
+                showForAnimation &&
+                  isVertical && {
+                    position: 'absolute',
+                    top: -translationValue,
+                  },
                 !isVisible && !isAnimating && styles.CalendarMonthGrid_month__hidden,
               )}
             >
@@ -367,59 +370,56 @@ class CalendarMonthGrid extends React.PureComponent {
 CalendarMonthGrid.propTypes = propTypes;
 CalendarMonthGrid.defaultProps = defaultProps;
 
-export default withStyles(({
-  reactDates: {
-    color,
-    noScrollBarOnVerticalScrollable,
-    spacing,
-    zIndex,
-  },
-}) => ({
-  CalendarMonthGrid: {
-    background: color.background,
-    textAlign: noflip('left'),
-    zIndex,
-  },
+export default withStyles(
+  ({ reactDates: { color, noScrollBarOnVerticalScrollable, spacing, zIndex } }) => ({
+    CalendarMonthGrid: {
+      background: color.background,
+      textAlign: noflip('left'),
+      zIndex,
+    },
 
-  CalendarMonthGrid__animating: {
-    zIndex: zIndex + 1,
-  },
+    CalendarMonthGrid__animating: {
+      zIndex: zIndex + 1,
+    },
 
-  CalendarMonthGrid__horizontal: {
-    position: 'absolute',
-    left: noflip(spacing.dayPickerHorizontalPadding),
-  },
+    CalendarMonthGrid__horizontal: {
+      position: 'absolute',
+      left: noflip(spacing.dayPickerHorizontalPadding),
+    },
 
-  CalendarMonthGrid__vertical: {
-    margin: '0 auto',
-  },
+    CalendarMonthGrid__vertical: {
+      margin: '0 auto',
+    },
 
-  CalendarMonthGrid__vertical_scrollable: {
-    margin: '0 auto',
-    overflowY: 'scroll',
-    ...(noScrollBarOnVerticalScrollable && {
-      '-webkitOverflowScrolling': 'touch',
-      '::-webkit-scrollbar': {
-        '-webkit-appearance': 'none',
-        display: 'none',
-      },
-    }),
-  },
+    CalendarMonthGrid__vertical_scrollable: {
+      margin: '0 auto',
+      overflowY: 'scroll',
+      ...((noScrollBarOnVerticalScrollable && {
+        '-webkitOverflowScrolling': 'touch',
+        '::-webkit-scrollbar': {
+          '-webkit-appearance': 'none',
+          display: 'none',
+        },
+      }) ||
+        {}),
+    },
 
-  CalendarMonthGrid_month__horizontal: {
-    display: 'inline-block',
-    verticalAlign: 'top',
-    minHeight: '100%',
-  },
+    CalendarMonthGrid_month__horizontal: {
+      display: 'inline-block',
+      verticalAlign: 'top',
+      minHeight: '100%',
+    },
 
-  CalendarMonthGrid_month__hideForAnimation: {
-    position: 'absolute',
-    zIndex: zIndex - 1,
-    opacity: 0,
-    pointerEvents: 'none',
-  },
+    CalendarMonthGrid_month__hideForAnimation: {
+      position: 'absolute',
+      zIndex: zIndex - 1,
+      opacity: 0,
+      pointerEvents: 'none',
+    },
 
-  CalendarMonthGrid_month__hidden: {
-    visibility: 'hidden',
-  },
-}), { pureComponent: typeof React.PureComponent !== 'undefined' })(CalendarMonthGrid);
+    CalendarMonthGrid_month__hidden: {
+      visibility: 'hidden',
+    },
+  }),
+  { pureComponent: typeof React.PureComponent !== 'undefined' },
+)(CalendarMonthGrid);

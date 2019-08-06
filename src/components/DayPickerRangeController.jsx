@@ -1172,6 +1172,8 @@ export default class DayPickerRangeController extends React.PureComponent {
 
     return (
       <DayPicker
+        startDate={this.props.startDate}
+        endDate={this.props.endDate}
         orientation={orientation}
         enableOutsideDays={enableOutsideDays}
         modifiers={visibleDays}

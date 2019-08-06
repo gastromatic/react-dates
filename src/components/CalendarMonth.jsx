@@ -179,6 +179,7 @@ class CalendarMonth extends React.PureComponent {
     const { weeks } = this.state;
     const monthTitle = renderMonthText ? renderMonthText(month) : month.format(monthFormat);
 
+    const currentMonth = month.clone();
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
     return (
@@ -204,9 +205,7 @@ class CalendarMonth extends React.PureComponent {
               isVisible,
             })
           ) : (
-            <strong>
-              {monthTitle}
-            </strong>
+            <strong>{/* {monthTitle} */}</strong>
           )}
         </div>
 
@@ -219,25 +218,44 @@ class CalendarMonth extends React.PureComponent {
           role="presentation"
         >
           <tbody>
-            {weeks.map((week, i) => (
-              <CalendarWeek key={i}>
-                {week.map((day, dayOfWeek) => renderCalendarDay({
-                  key: dayOfWeek,
-                  day,
-                  daySize,
-                  isOutsideDay: !day || day.month() !== month.month(),
-                  tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
-                  isFocused,
-                  onDayMouseEnter,
-                  onDayMouseLeave,
-                  onDayClick,
-                  renderDayContents,
-                  phrases,
-                  modifiers: modifiers[toISODateString(day)],
-                  ariaLabelFormat: dayAriaLabelFormat,
-                }))}
-              </CalendarWeek>
-            ))}
+            {weeks.map((week, i) =>
+              !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
+                <CalendarWeek key={i}>
+                  <td style={{ padding: 5 }}>
+                    {i === 0 && Number(week[0] && week[0].date()) > 7
+                      ? ''
+                      : `${week[0] && week[0].week()}`}
+                  </td>
+                  {week.map((day, dayOfWeek) =>
+                    renderCalendarDay({
+                      key: dayOfWeek,
+                      day,
+                      daySize,
+                      isOutsideDay: !day || day.month() !== month.month(),
+                      tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
+                      isFocused,
+                      onDayMouseEnter,
+                      onDayMouseLeave,
+                      onDayClick,
+                      renderDayContents,
+                      phrases,
+                      modifiers: modifiers[toISODateString(day)],
+                      ariaLabelFormat: dayAriaLabelFormat,
+                      currentMonth,
+                    }),
+                  )}
+                  <td style={{ padding: 5, textAlign: 'left' }}>
+                    {i === 0 && Number(week[0] && week[0].date()) < 8 ? monthTitle : ''}
+                    {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
+                      ? month
+                          .clone()
+                          .add(1, 'month')
+                          .format(monthFormat)
+                      : ''}
+                  </td>
+                </CalendarWeek>
+              ) : null,
+            )}
           </tbody>
         </table>
       </div>
