@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import momentPropTypes from 'react-moment-proptypes';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from 'airbnb-prop-types';
 import { css, withStyles, withStylesPropTypes } from 'react-with-styles';
 
@@ -114,6 +115,8 @@ const propTypes = forbidExtraProps({
   weekDayFormat: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
   dayAriaLabelFormat: PropTypes.string,
+  startDate: momentPropTypes.momentObj,
+  endDate: momentPropTypes.momentObj
 });
 
 export const defaultProps = {
@@ -867,7 +870,7 @@ class DayPicker extends React.PureComponent {
 
     const firstDayOfWeek = this.getFirstDayOfWeek();
 
-    const header = [<li {...css(styles.DayPicker_weekHeader_li, { width: daySize })}>KW</li>];
+    const header = [<li key="-1" {...css(styles.DayPicker_weekHeader_li, { width: daySize })}>KW</li>];
     for (let i = 0; i < 7; i += 1) {
       header.push(
         <li key={i} {...css(styles.DayPicker_weekHeader_li, { width: daySize })}>

@@ -26,6 +26,7 @@ const propTypes = forbidExtraProps({
   onDayMouseLeave: PropTypes.func,
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.string,
+  currentMonth: momentPropTypes.momentObj,
 
   // internationalization
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),

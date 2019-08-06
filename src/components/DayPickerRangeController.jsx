@@ -109,8 +109,8 @@ const propTypes = forbidExtraProps({
 });
 
 const defaultProps = {
-  startDate: undefined, // TODO: use null
-  endDate: undefined, // TODO: use null
+  startDate: moment(), // TODO: use null
+  endDate: moment(), // TODO: use null
   minDate: null,
   maxDate: null,
   onDatesChange() {},
@@ -1127,6 +1127,8 @@ export default class DayPickerRangeController extends React.PureComponent {
 
   render() {
     const {
+      startDate,
+      endDate,
       numberOfMonths,
       orientation,
       monthFormat,
@@ -1172,8 +1174,8 @@ export default class DayPickerRangeController extends React.PureComponent {
 
     return (
       <DayPicker
-        startDate={this.props.startDate}
-        endDate={this.props.endDate}
+        startDate={startDate}
+        endDate={endDate}
         orientation={orientation}
         enableOutsideDays={enableOutsideDays}
         modifiers={visibleDays}

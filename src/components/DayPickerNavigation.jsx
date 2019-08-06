@@ -30,6 +30,8 @@ const propTypes = forbidExtraProps({
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerNavigationPhrases)),
 
   isRTL: PropTypes.bool,
+  position: PropTypes.string,
+  type: PropTypes.string
 });
 
 const defaultProps = {
@@ -111,7 +113,6 @@ function DayPickerNavigation({
     ? isDefaultNavNext
     : isDefaultNavNext || isDefaultNavPrev;
 
-  console.log('===position', position);
   return (
     <div
       {...css(
