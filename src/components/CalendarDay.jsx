@@ -139,8 +139,10 @@ class CalendarDay extends React.PureComponent {
           modifiers.has('blocked-calendar') && styles.CalendarDay__blocked_calendar,
           hoveredSpan && styles.CalendarDay__hovered_span,
           modifiers.has('selected-span') && styles.CalendarDay__selected_span,
+          modifiers.has('invalid-span') && styles.CalendarDay__selectedInvalid_span,
           modifiers.has('selected-start') && styles.CalendarDay__selected_start,
           modifiers.has('selected-end') && styles.CalendarDay__selected_end,
+          modifiers.has('selected-invalid-end') && styles.CalendarDay__selectedInvalid_end,
           selected && !modifiers.has('selected-span') && styles.CalendarDay__selected,
           isOutsideRange && styles.CalendarDay__blocked_out_of_range,
           daySizeStyles,
@@ -258,6 +260,23 @@ export default withStyles(({ reactDates: { color, font } }) => ({
       color: color.selectedSpan.color_active,
     },
   },
+  CalendarDay__selectedInvalid_span: {
+    background: '#FFF2F2',
+    border: `1px double #FF6D6D`,
+    color: '#FF6D6D',
+
+    ':hover': {
+      background: '#FFECEC',
+      border: `1px double '#FF6D6D`,
+      color: '#FF6D6D',
+    },
+
+    ':active': {
+      background: '#FFECEC',
+      border: `1px double #FF6D6D`,
+      color: '#FF6D6D',
+    },
+  },
 
   CalendarDay__selected: {
     background: color.selected.backgroundColor,
@@ -343,6 +362,11 @@ export default withStyles(({ reactDates: { color, font } }) => ({
 
   CalendarDay__selected_start: {},
   CalendarDay__selected_end: {},
+  CalendarDay__selectedInvalid_end: {
+    background: '#FFECEC !important',
+    border: `1px double #FF6D6D !important`,
+    color: '#FF6D6D !important',
+  },
   CalendarDay__today: {},
   CalendarDay__firstDayOfWeek: {},
   CalendarDay__lastDayOfWeek: {},

@@ -58,6 +58,7 @@ const propTypes = forbidExtraProps({
   monthFormat: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.string,
+  onDatesChange: PropTypes.func,
 });
 
 const defaultProps = {
@@ -174,6 +175,7 @@ class CalendarMonth extends React.PureComponent {
       renderMonthText,
       styles,
       verticalBorderSpacing,
+      onDatesChange,
     } = this.props;
 
     const { weeks } = this.state;
@@ -221,7 +223,7 @@ class CalendarMonth extends React.PureComponent {
             {weeks.map((week, i) =>
               !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
                 <CalendarWeek key={i}>
-                  <td style={{ padding: 5 }}>
+                  <td style={{ padding: 5 }} onClick={() => {console.log('week', week[0].week(), week[0], week[6]);onDatesChange({startDate: week[0], endDate: week[6]})}}>
                     {i === 0 && Number(week[0] && week[0].date()) > 7
                       ? ''
                       : `${week[0] && week[0].week()}`}

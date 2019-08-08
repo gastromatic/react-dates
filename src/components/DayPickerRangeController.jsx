@@ -201,8 +201,10 @@ export default class DayPickerRangeController extends React.PureComponent {
       valid: day => !this.isBlocked(day),
       'selected-start': day => this.isStartDate(day),
       'selected-end': day => this.isEndDate(day),
+      'selected-invalid-end': day => this.isEndInvalidDate(day),
       'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
       'selected-span': day => this.isInSelectedSpan(day),
+      'invalid-span': day => this.isInInvalidSpan(day),
       'last-in-range': day => this.isLastInRange(day),
       hovered: day => this.isHovered(day),
       'hovered-span': day => this.isInHoveredSpan(day),
@@ -1061,6 +1063,11 @@ export default class DayPickerRangeController extends React.PureComponent {
     return isSameDay(day, endDate);
   }
 
+  isEndInvalidDate(day) {
+    const { startDate, endDate } = this.props;
+    return isSameDay(day, endDate) && startDate && day.month() !== startDate.month();
+  }
+
   isHovered(day) {
     const { hoverDate } = this.state || {};
     const { focusedInput } = this.props;
@@ -1086,6 +1093,11 @@ export default class DayPickerRangeController extends React.PureComponent {
   isInSelectedSpan(day) {
     const { startDate, endDate } = this.props;
     return day.isBetween(startDate, endDate, 'days');
+  }
+
+  isInInvalidSpan(day) {
+    const { startDate, endDate } = this.props;
+    return day.isBetween(startDate, endDate, 'days') && startDate && day.month() !== startDate.month();
   }
 
   isLastInRange(day) {
@@ -1162,6 +1174,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       transitionDuration,
       verticalBorderSpacing,
       horizontalMonthPadding,
+      onDatesChange
     } = this.props;
 
     const {
@@ -1223,6 +1236,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         noBorder={noBorder}
         transitionDuration={transitionDuration}
         horizontalMonthPadding={horizontalMonthPadding}
+        onDatesChange={onDatesChange}
       />
     );
   }

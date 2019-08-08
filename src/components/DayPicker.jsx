@@ -116,7 +116,8 @@ const propTypes = forbidExtraProps({
   phrases: PropTypes.shape(getPhrasePropTypes(DayPickerPhrases)),
   dayAriaLabelFormat: PropTypes.string,
   startDate: momentPropTypes.momentObj,
-  endDate: momentPropTypes.momentObj
+  endDate: momentPropTypes.momentObj,
+  onDatesChange: PropTypes.func,
 });
 
 export const defaultProps = {
@@ -944,6 +945,7 @@ class DayPicker extends React.PureComponent {
       transitionDuration,
       verticalBorderSpacing,
       horizontalMonthPadding,
+      onDatesChange,
     } = this.props;
 
     const {
@@ -960,12 +962,7 @@ class DayPicker extends React.PureComponent {
       weekHeaders.push(this.renderWeekHeader(i));
     }
 
-    const startWeek = this.props.startDate && this.props.startDate.week();
-    const endWeek = this.props.endDate && this.props.endDate.week();
-    const activePeriod =
-      startWeek && endWeek
-        ? `Optimierungszeitraum ${1 + endWeek - startWeek} (KW ${startWeek} - KW ${endWeek})`
-        : null;
+    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${currentMonth.week()} - KW ${currentMonth.week() + (this.calendarMonthWeeks && this.calendarMonthWeeks[0]) - 2})`
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
     let height;
     if (isHorizontal) {
@@ -1028,6 +1025,7 @@ class DayPicker extends React.PureComponent {
       marginTop: isHorizontal && withPortal ? -calendarMonthWidth / 2 : null,
     };
 
+    console.log('firstVisibleMonthIndex', firstVisibleMonthIndex, currentMonth)
     return (
       <div
         role="application"
@@ -1126,6 +1124,7 @@ class DayPicker extends React.PureComponent {
                   transitionDuration={transitionDuration}
                   verticalBorderSpacing={verticalBorderSpacing}
                   horizontalMonthPadding={horizontalMonthPadding}
+                  onDatesChange={onDatesChange}
                 />
                 {verticalScrollable && this.renderNavigation()}
               </div>
