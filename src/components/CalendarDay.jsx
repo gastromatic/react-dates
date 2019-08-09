@@ -142,8 +142,8 @@ class CalendarDay extends React.PureComponent {
           modifiers.has('invalid-span') && styles.CalendarDay__selectedInvalid_span,
           modifiers.has('selected-start') && styles.CalendarDay__selected_start,
           modifiers.has('selected-end') && styles.CalendarDay__selected_end,
-          modifiers.has('selected-invalid-end') && styles.CalendarDay__selectedInvalid_end,
           selected && !modifiers.has('selected-span') && styles.CalendarDay__selected,
+          modifiers.has('selected-invalid-end') && styles.CalendarDay__selectedInvalid_end,
           isOutsideRange && styles.CalendarDay__blocked_out_of_range,
           daySizeStyles,
         )}
@@ -262,18 +262,18 @@ export default withStyles(({ reactDates: { color, font } }) => ({
   },
   CalendarDay__selectedInvalid_span: {
     background: '#FFF2F2',
-    border: `1px double #FF6D6D`,
+    border: `1px double #FFECEC`,
     color: '#FF6D6D',
 
     ':hover': {
       background: '#FFECEC',
-      border: `1px double '#FF6D6D`,
+      border: `1px double '#FFECEC`,
       color: '#FF6D6D',
     },
 
     ':active': {
       background: '#FFECEC',
-      border: `1px double #FF6D6D`,
+      border: `1px double #FFECEC`,
       color: '#FF6D6D',
     },
   },
@@ -364,7 +364,7 @@ export default withStyles(({ reactDates: { color, font } }) => ({
   CalendarDay__selected_end: {},
   CalendarDay__selectedInvalid_end: {
     background: '#FFECEC !important',
-    border: `1px double #FF6D6D !important`,
+    border: `1px double #FFECEC !important`,
     color: '#FF6D6D !important',
   },
   CalendarDay__today: {},

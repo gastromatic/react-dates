@@ -1025,7 +1025,6 @@ class DayPicker extends React.PureComponent {
       marginTop: isHorizontal && withPortal ? -calendarMonthWidth / 2 : null,
     };
 
-    console.log('firstVisibleMonthIndex', firstVisibleMonthIndex, currentMonth)
     return (
       <div
         role="application"
