@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { css, withStyles, withStylesPropTypes } from 'react-with-styles';
 import { Portal } from 'react-portal';
@@ -40,6 +41,7 @@ import {
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
   ...DateRangePickerShape,
+  missingWeeks: PropTypes.object,
 });
 
 const defaultProps = {
@@ -90,7 +92,7 @@ const defaultProps = {
   hideKeyboardShortcutsPanel: true,
   daySize: DAY_SIZE,
   isRTL: false,
-  firstDayOfWeek: null,
+  firstDayOfWeek: 1,
   verticalHeight: null,
   transitionDuration: undefined,
   verticalSpacing: DEFAULT_VERTICAL_SPACING,
@@ -121,6 +123,7 @@ const defaultProps = {
   weekDayFormat: 'dd',
   phrases: DateRangePickerPhrases,
   dayAriaLabelFormat: undefined,
+  missingWeeks: {},
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -420,6 +423,7 @@ class DateRangePicker extends React.PureComponent {
       horizontalMonthPadding,
       small,
       disabled,
+      missingWeeks,
       theme: { reactDates },
     } = this.props;
 
@@ -505,6 +509,7 @@ class DateRangePicker extends React.PureComponent {
           transitionDuration={transitionDuration}
           disabled={disabled}
           horizontalMonthPadding={horizontalMonthPadding}
+          missingWeeks={missingWeeks}
         />
 
         {withFullScreenPortal && (

@@ -106,6 +106,7 @@ const propTypes = forbidExtraProps({
   dayAriaLabelFormat: PropTypes.string,
 
   isRTL: PropTypes.bool,
+  missingWeeks: PropTypes.object,
 });
 
 const defaultProps = {
@@ -174,6 +175,7 @@ const defaultProps = {
   dayAriaLabelFormat: undefined,
 
   isRTL: false,
+  missingWeeks: [],
 };
 
 const getChooseAvailableDatePhrase = (phrases, focusedInput) => {
@@ -205,6 +207,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
       'selected-span': day => this.isInSelectedSpan(day),
       'invalid-span': day => this.isInInvalidSpan(day),
+      'missed-span': day => this.isInMissingSpan(day),
       'last-in-range': day => this.isLastInRange(day),
       hovered: day => this.isHovered(day),
       'hovered-span': day => this.isInHoveredSpan(day),
@@ -243,6 +246,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.onYearChange = this.onYearChange.bind(this);
     this.onMultiplyScrollableMonths = this.onMultiplyScrollableMonths.bind(this);
     this.getFirstFocusableDay = this.getFirstFocusableDay.bind(this);
+    this.isInMissingSpan = this.isInMissingSpan.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -1098,6 +1102,12 @@ export default class DayPickerRangeController extends React.PureComponent {
   isInInvalidSpan(day) {
     const { startDate, endDate } = this.props;
     return day.isBetween(startDate, endDate, 'days') && startDate && day.month() !== startDate.month();
+  }
+
+  isInMissingSpan(day) {
+    const { missingWeeks } = this.props;
+    const key = day ? `${day.year()}${day.week()}` : '';
+    return missingWeeks[key];
   }
 
   isLastInRange(day) {
