@@ -184,6 +184,17 @@ class CalendarMonth extends React.PureComponent {
     const currentMonth = month.clone();
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
+    let lastInvalidWeek = null;
+
+    weeks.forEach((week, i) => {
+      week.forEach(day => {
+        if (day && modifiers && modifiers[toISODateString(day)]
+          && (modifiers[toISODateString(day)].has('invalid-span') || modifiers[toISODateString(day)].has('selected-invalid-end'))) {
+          lastInvalidWeek = i;
+        }
+      })
+    })
+
     return (
       <div
         {...css(
@@ -222,7 +233,7 @@ class CalendarMonth extends React.PureComponent {
           <tbody>
             {weeks.map((week, i) =>
               !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
-                <CalendarWeek key={i}>
+                [<CalendarWeek key={i}>
                   <td style={{ padding: 5 }} onClick={() => {console.log('week', week[0].week(), week[0], week[6]);onDatesChange({startDate: week[0], endDate: week[6]})}}>
                     {i === 0 && Number(week[0] && week[0].date()) > 7
                       ? ''
@@ -255,8 +266,18 @@ class CalendarMonth extends React.PureComponent {
                           .format(monthFormat)
                       : ''}
                   </td>
-                </CalendarWeek>
-              ) : null,
+                </CalendarWeek>,
+                  lastInvalidWeek === i ? <CalendarWeek key={`${i}_error`}>
+                  <td></td>
+                  <td
+                    colSpan={7}
+                    {...css(
+                      styles.CalendarMonth_errorPeriod,
+                    )}
+                  >Error message placeholder</td>
+                  <td></td>
+                </CalendarWeek> : null
+              ]) : null,
             )}
           </tbody>
         </table>
@@ -298,4 +319,10 @@ export default withStyles(({ reactDates: { color, font, spacing } }) => ({
     paddingTop: 12,
     paddingBottom: 7,
   },
+  CalendarMonth_errorPeriod: {
+    background: '#FF6D6D',
+    color: '#fff',
+    padding: '5px 10px',
+    textAlign: 'left',
+  }
 }), { pureComponent: typeof React.PureComponent !== 'undefined' })(CalendarMonth);

@@ -111,6 +111,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.4.5",
+    "@types/react-dates": "^17.1.5",
     "airbnb-prop-types": "^2.10.0",
     "consolidated-events": "^1.1.1 || ^2.0.0",
     "enzyme-shallow-equal": "^1.0.0",

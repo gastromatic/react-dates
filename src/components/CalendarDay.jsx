@@ -262,18 +262,18 @@ export default withStyles(({ reactDates: { color, font } }) => ({
   },
   CalendarDay__selectedInvalid_span: {
     background: '#FFF2F2',
-    border: `1px double #FFECEC`,
+    border: `1px double ${color.selectedSpan.borderColor}`,
     color: '#FF6D6D',
 
     ':hover': {
       background: '#FFECEC',
-      border: `1px double '#FFECEC`,
+      border: `1px double ${color.selectedSpan.borderColor}`,
       color: '#FF6D6D',
     },
 
     ':active': {
       background: '#FFECEC',
-      border: `1px double #FFECEC`,
+      border: `1px double ${color.selectedSpan.borderColor}`,
       color: '#FF6D6D',
     },
   },
@@ -364,7 +364,7 @@ export default withStyles(({ reactDates: { color, font } }) => ({
   CalendarDay__selected_end: {},
   CalendarDay__selectedInvalid_end: {
     background: '#FFECEC !important',
-    border: `1px double #FFECEC !important`,
+    border: `1px double ${color.selectedSpan.borderColor}`,
     color: '#FF6D6D !important',
   },
   CalendarDay__today: {},
