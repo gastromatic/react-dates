@@ -4,11 +4,12 @@
   "description": "A responsive and accessible date range picker component built with React",
   "main": "index.js",
   "scripts": {
+    "prepare": "npm run build",
     "prebuild": "npm run clean",
     "build": "npm run build:cjs && npm run build:esm && npm run build:css -- --optimize ",
-    "build:cjs": "BABEL_ENV=cjs babel src/ -d lib/",
-    "build:esm": "BABEL_ENV=esm babel src/ -d esm/",
-    "prebuild:css": "rimraf lib/css && mkdir -p lib/css",
+    "build:cjs": "set BABEL_ENV=cjs && npx babel src/ -d lib/",
+    "build:esm": "set BABEL_ENV=esm && npx babel src/ -d esm/",
+    "prebuild:css": "rimraf \"lib/css\" && mkdir \"lib/css\"",
     "build:css": "node scripts/buildCSS.js",
     "clean": "rimraf lib esm",
     "precover": "rimraf coverage && npm run react",
@@ -107,6 +108,7 @@
     "sinon-sandbox": "^2.0.0",
     "style-loader": "^0.20.3",
     "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.6",
     "why-did-you-update": "^1.0.6"
   },
   "dependencies": {
