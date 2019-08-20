@@ -962,7 +962,8 @@ class DayPicker extends React.PureComponent {
       weekHeaders.push(this.renderWeekHeader(i));
     }
 
-    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${currentMonth.week()} - KW ${currentMonth.week() + (this.calendarMonthWeeks && this.calendarMonthWeeks[0]) - 2})`
+    const firstWeek = currentMonth.clone().startOf('month').startOf('isoWeek').week() + 1;
+    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeek} - KW ${firstWeek + (this.calendarMonthWeeks && this.calendarMonthWeeks[0]) - 2})`
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
     let height;
     if (isHorizontal) {
