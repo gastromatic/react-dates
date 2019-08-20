@@ -66,6 +66,8 @@ const propTypes = forbidExtraProps({
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.string,
   onDatesChange: PropTypes.func,
+  isDayBlocked: PropTypes.func,
+  isOutsideRange: PropTypes.func,
 });
 
 const defaultProps = {
@@ -267,6 +269,8 @@ class CalendarMonthGrid extends React.PureComponent {
       verticalBorderSpacing,
       setMonthTitleHeight,
       onDatesChange,
+      isDayBlocked,
+      isOutsideRange,
     } = this.props;
 
     const { months } = this.state;
@@ -361,6 +365,8 @@ class CalendarMonthGrid extends React.PureComponent {
                 verticalBorderSpacing={verticalBorderSpacing}
                 horizontalMonthPadding={horizontalMonthPadding}
                 onDatesChange={onDatesChange}
+                isDayBlocked={isDayBlocked}
+                isOutsideRange={isOutsideRange}
               />
             </div>
           );

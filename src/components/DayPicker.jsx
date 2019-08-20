@@ -118,6 +118,8 @@ const propTypes = forbidExtraProps({
   startDate: momentPropTypes.momentObj,
   endDate: momentPropTypes.momentObj,
   onDatesChange: PropTypes.func,
+  isDayBlocked: PropTypes.func,
+  isOutsideRange: PropTypes.func,
 });
 
 export const defaultProps = {
@@ -946,6 +948,8 @@ class DayPicker extends React.PureComponent {
       verticalBorderSpacing,
       horizontalMonthPadding,
       onDatesChange,
+      isDayBlocked,
+      isOutsideRange,
     } = this.props;
 
     const {
@@ -1125,6 +1129,8 @@ class DayPicker extends React.PureComponent {
                   verticalBorderSpacing={verticalBorderSpacing}
                   horizontalMonthPadding={horizontalMonthPadding}
                   onDatesChange={onDatesChange}
+                  isDayBlocked={isDayBlocked}
+                  isOutsideRange={isOutsideRange}
                 />
                 {verticalScrollable && this.renderNavigation()}
               </div>

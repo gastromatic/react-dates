@@ -59,6 +59,8 @@ const propTypes = forbidExtraProps({
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.string,
   onDatesChange: PropTypes.func,
+  isDayBlocked: PropTypes.func,
+  isOutsideRange: PropTypes.func,
 });
 
 const defaultProps = {
@@ -105,6 +107,8 @@ class CalendarMonth extends React.PureComponent {
 
     this.setCaptionRef = this.setCaptionRef.bind(this);
     this.setMonthTitleHeight = this.setMonthTitleHeight.bind(this);
+    this.isBlocked = this.isBlocked.bind(this);
+    this.setWeek = this.setWeek.bind(this);
   }
 
   componentDidMount() {
@@ -149,6 +153,19 @@ class CalendarMonth extends React.PureComponent {
 
   setCaptionRef(ref) {
     this.captionRef = ref;
+  }
+
+  isBlocked(day) {
+    const { isDayBlocked, isOutsideRange } = this.props;
+    return isDayBlocked(day) || isOutsideRange(day);
+  }
+
+  setWeek({ startDate, endDate }) {
+    const { onDatesChange } = this.props;
+    if (this.isBlocked(startDate) || this.isBlocked(endDate)) {
+      return;
+    }
+    onDatesChange({startDate, endDate});
   }
 
   render() {
@@ -234,7 +251,7 @@ class CalendarMonth extends React.PureComponent {
             {weeks.map((week, i) =>
               !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
                 [<CalendarWeek key={i}>
-                  <td style={{ padding: 5 }} onClick={() => {console.log('week', week[0].week(), week[0], week[6]);onDatesChange({startDate: week[0], endDate: week[6]})}}>
+                  <td style={{ padding: 5 }} onClick={() => {this.setWeek({startDate: week[0], endDate: week[6]})}}>
                     {i === 0 && Number(week[0] && week[0].date()) > 7
                       ? ''
                       : `${week[0] && week[0].week()}`}

@@ -1187,7 +1187,9 @@ export default class DayPickerRangeController extends React.PureComponent {
       transitionDuration,
       verticalBorderSpacing,
       horizontalMonthPadding,
-      onDatesChange
+      onDatesChange,
+      isDayBlocked,
+      isOutsideRange
     } = this.props;
 
     const {
@@ -1250,6 +1252,8 @@ export default class DayPickerRangeController extends React.PureComponent {
         transitionDuration={transitionDuration}
         horizontalMonthPadding={horizontalMonthPadding}
         onDatesChange={onDatesChange}
+        isDayBlocked={isDayBlocked}
+        isOutsideRange={isOutsideRange}
       />
     );
   }
