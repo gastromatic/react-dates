@@ -61,6 +61,7 @@ const propTypes = forbidExtraProps({
   onDatesChange: PropTypes.func,
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
+  errorMessage: PropTypes.string,
 });
 
 const defaultProps = {
@@ -192,7 +193,7 @@ class CalendarMonth extends React.PureComponent {
       renderMonthText,
       styles,
       verticalBorderSpacing,
-      onDatesChange,
+      errorMessage,
     } = this.props;
 
     const { weeks } = this.state;
@@ -284,14 +285,14 @@ class CalendarMonth extends React.PureComponent {
                       : ''}
                   </td>
                 </CalendarWeek>,
-                  lastInvalidWeek === i ? <CalendarWeek key={`${i}_error`}>
+                  lastInvalidWeek === i && errorMessage ? <CalendarWeek key={`${i}_error`}>
                   <td></td>
                   <td
                     colSpan={7}
                     {...css(
                       styles.CalendarMonth_errorPeriod,
                     )}
-                  >Error message placeholder</td>
+                  >{errorMessage}</td>
                   <td></td>
                 </CalendarWeek> : null
               ]) : null,

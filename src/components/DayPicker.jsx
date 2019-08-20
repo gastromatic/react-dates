@@ -120,6 +120,7 @@ const propTypes = forbidExtraProps({
   onDatesChange: PropTypes.func,
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
+  errorMessage: PropTypes.string,
 });
 
 export const defaultProps = {
@@ -950,6 +951,7 @@ class DayPicker extends React.PureComponent {
       onDatesChange,
       isDayBlocked,
       isOutsideRange,
+      errorMessage,
     } = this.props;
 
     const {
@@ -1131,6 +1133,7 @@ class DayPicker extends React.PureComponent {
                   onDatesChange={onDatesChange}
                   isDayBlocked={isDayBlocked}
                   isOutsideRange={isOutsideRange}
+                  errorMessage={errorMessage}
                 />
                 {verticalScrollable && this.renderNavigation()}
               </div>

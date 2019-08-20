@@ -42,6 +42,7 @@ const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
   ...DateRangePickerShape,
   missingWeeks: PropTypes.object,
+  errorMessage: PropTypes.string,
 });
 
 const defaultProps = {
@@ -124,6 +125,7 @@ const defaultProps = {
   phrases: DateRangePickerPhrases,
   dayAriaLabelFormat: undefined,
   missingWeeks: {},
+  errorMessage: "",
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -424,6 +426,7 @@ class DateRangePicker extends React.PureComponent {
       small,
       disabled,
       missingWeeks,
+      errorMessage,
       theme: { reactDates },
     } = this.props;
 
@@ -510,6 +513,7 @@ class DateRangePicker extends React.PureComponent {
           disabled={disabled}
           horizontalMonthPadding={horizontalMonthPadding}
           missingWeeks={missingWeeks}
+          errorMessage={errorMessage}
         />
 
         {withFullScreenPortal && (

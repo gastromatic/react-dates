@@ -107,6 +107,7 @@ const propTypes = forbidExtraProps({
 
   isRTL: PropTypes.bool,
   missingWeeks: PropTypes.object,
+  errorMessage: PropTypes.string,
 });
 
 const defaultProps = {
@@ -1189,7 +1190,8 @@ export default class DayPickerRangeController extends React.PureComponent {
       horizontalMonthPadding,
       onDatesChange,
       isDayBlocked,
-      isOutsideRange
+      isOutsideRange,
+      errorMessage,
     } = this.props;
 
     const {
@@ -1254,6 +1256,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         onDatesChange={onDatesChange}
         isDayBlocked={isDayBlocked}
         isOutsideRange={isOutsideRange}
+        errorMessage={errorMessage}
       />
     );
   }
