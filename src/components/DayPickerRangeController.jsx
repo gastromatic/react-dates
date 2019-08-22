@@ -73,6 +73,7 @@ const propTypes = forbidExtraProps({
   hideKeyboardShortcutsPanel: PropTypes.bool,
   daySize: nonNegativeInteger,
   noBorder: PropTypes.bool,
+  noBorderPicker: PropTypes.bool,
   verticalBorderSpacing: nonNegativeInteger,
   horizontalMonthPadding: nonNegativeInteger,
 
@@ -158,6 +159,7 @@ const defaultProps = {
   firstDayOfWeek: null,
   verticalHeight: null,
   noBorder: false,
+  noBorderPicker: false,
   transitionDuration: undefined,
   verticalBorderSpacing: undefined,
   horizontalMonthPadding: 13,
@@ -1192,6 +1194,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       isDayBlocked,
       isOutsideRange,
       errorMessage,
+      noBorderPicker,
     } = this.props;
 
     const {
@@ -1251,6 +1254,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         verticalHeight={verticalHeight}
         verticalBorderSpacing={verticalBorderSpacing}
         noBorder={noBorder}
+        noBorderPicker={noBorderPicker}
         transitionDuration={transitionDuration}
         horizontalMonthPadding={horizontalMonthPadding}
         onDatesChange={onDatesChange}

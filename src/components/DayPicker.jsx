@@ -69,6 +69,7 @@ const propTypes = forbidExtraProps({
   isRTL: PropTypes.bool,
   verticalHeight: nonNegativeInteger,
   noBorder: PropTypes.bool,
+  noBorderPicker: PropTypes.bool,
   transitionDuration: nonNegativeInteger,
   verticalBorderSpacing: nonNegativeInteger,
   horizontalMonthPadding: nonNegativeInteger,
@@ -140,6 +141,7 @@ export const defaultProps = {
   isRTL: false,
   verticalHeight: null,
   noBorder: false,
+  noBorderPicker: false,
   transitionDuration: undefined,
   verticalBorderSpacing: undefined,
   horizontalMonthPadding: 13,
@@ -945,6 +947,7 @@ class DayPicker extends React.PureComponent {
       verticalHeight,
       dayAriaLabelFormat,
       noBorder,
+      noBorderPicker,
       transitionDuration,
       verticalBorderSpacing,
       horizontalMonthPadding,
@@ -1044,7 +1047,7 @@ class DayPicker extends React.PureComponent {
           this.isVertical() && withPortal && styles.DayPicker_portal__vertical,
           dayPickerStyle,
           !monthTitleHeight && styles.DayPicker__hidden,
-          !noBorder && styles.DayPicker__withBorder,
+          !noBorderPicker && styles.DayPicker__withBorder,
         )}
       >
         <OutsideClickHandler onOutsideClick={onOutsideClick}>
@@ -1067,7 +1070,7 @@ class DayPicker extends React.PureComponent {
               {weekHeaders}
             </div>
 
-            {activePeriod && (
+            {activePeriod && false && (
               <div {...css(styles.DayPicker_activePeriod)} aria-hidden="true" role="presentation">
                 {activePeriod}
               </div>

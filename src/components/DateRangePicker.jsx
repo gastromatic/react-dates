@@ -44,6 +44,7 @@ const propTypes = forbidExtraProps({
   missingWeeks: PropTypes.object,
   errorMessage: PropTypes.string,
   embedded: PropTypes.bool,
+  noBorderPicker: PropTypes.bool,
 });
 
 const defaultProps = {
@@ -127,7 +128,8 @@ const defaultProps = {
   dayAriaLabelFormat: undefined,
   missingWeeks: {},
   errorMessage: "",
-  embedded: false
+  embedded: false,
+  noBorderPicker: false
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -430,6 +432,7 @@ class DateRangePicker extends React.PureComponent {
       missingWeeks,
       errorMessage,
       theme: { reactDates },
+      noBorderPicker,
     } = this.props;
 
     const { dayPickerContainerStyles, isDayPickerFocused, showKeyboardShortcuts } = this.state;
@@ -516,6 +519,7 @@ class DateRangePicker extends React.PureComponent {
           horizontalMonthPadding={horizontalMonthPadding}
           missingWeeks={missingWeeks}
           errorMessage={errorMessage}
+          noBorderPicker={noBorderPicker}
         />
 
         {withFullScreenPortal && (

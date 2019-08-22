@@ -22,6 +22,8 @@ import ModifiersShape from '../shapes/ModifiersShape';
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
 import DayOfWeekShape from '../shapes/DayOfWeekShape';
 
+import noflip from '../utils/noflip';
+
 
 import {
   HORIZONTAL_ORIENTATION,
@@ -213,6 +215,11 @@ class CalendarMonth extends React.PureComponent {
       })
     })
 
+    const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').week() + 1;
+    const lastDayIndex = currentMonth.clone().endOf('month').endOf('isoWeek').date();
+    const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').week() - 1;
+    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`
+
     return (
       <div
         {...css(
@@ -236,7 +243,7 @@ class CalendarMonth extends React.PureComponent {
               isVisible,
             })
           ) : (
-            <strong>{/* {monthTitle} */}</strong>
+            <div {...css(styles.DayPicker_activePeriod)} aria-hidden="true" role="presentation">{activePeriod}</div>
           )}
         </div>
 
@@ -286,7 +293,7 @@ class CalendarMonth extends React.PureComponent {
                   </td>
                 </CalendarWeek>,
                   lastInvalidWeek === i && errorMessage ? <CalendarWeek key={`${i}_error`}>
-                  <td></td>
+                  <td style={{ width: 10 }}></td>
                   <td
                     colSpan={7}
                     {...css(
@@ -307,7 +314,7 @@ class CalendarMonth extends React.PureComponent {
 CalendarMonth.propTypes = propTypes;
 CalendarMonth.defaultProps = defaultProps;
 
-export default withStyles(({ reactDates: { color, font, spacing } }) => ({
+export default withStyles(({ reactDates: { color, font, spacing, zIndex } }) => ({
   CalendarMonth: {
     background: color.background,
     textAlign: 'center',
@@ -342,5 +349,11 @@ export default withStyles(({ reactDates: { color, font, spacing } }) => ({
     color: '#fff',
     padding: '5px 10px',
     textAlign: 'left',
-  }
+  },
+  DayPicker_activePeriod: {
+    fontSize: 10,
+    color: color.placeholderText,
+    zIndex: zIndex + 2,
+    textAlign: noflip('left'),
+  },
 }), { pureComponent: typeof React.PureComponent !== 'undefined' })(CalendarMonth);

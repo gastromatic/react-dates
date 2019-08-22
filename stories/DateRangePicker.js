@@ -120,5 +120,6 @@ storiesOf('DateRangePicker (DRP)', module)
       keepOpenOnDateSelect
       autoFocus
       embedded
+      noBorderPicker
     />
   )));
