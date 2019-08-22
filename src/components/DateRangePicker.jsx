@@ -43,6 +43,7 @@ const propTypes = forbidExtraProps({
   ...DateRangePickerShape,
   missingWeeks: PropTypes.object,
   errorMessage: PropTypes.string,
+  embedded: PropTypes.bool,
 });
 
 const defaultProps = {
@@ -126,6 +127,7 @@ const defaultProps = {
   dayAriaLabelFormat: undefined,
   missingWeeks: {},
   errorMessage: "",
+  embedded: false
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -190,9 +192,9 @@ class DateRangePicker extends React.PureComponent {
   }
 
   onOutsideClick(event) {
-    const { onFocusChange, onClose, startDate, endDate, appendToBody } = this.props;
+    const { onFocusChange, onClose, startDate, endDate, appendToBody, embedded } = this.props;
 
-    if (!this.isOpened()) return;
+    if (!this.isOpened() || embedded) return;
     if (appendToBody && this.dayPickerContainer.contains(event.target)) return;
 
     this.setState({

@@ -116,5 +116,9 @@ storiesOf('DateRangePicker (DRP)', module)
     <DateRangePickerWrapper
       orientation={VERTICAL_ORIENTATION}
       verticalHeight={568}
+      verticalSpacing={0}
+      keepOpenOnDateSelect
+      autoFocus
+      embedded
     />
   )));
