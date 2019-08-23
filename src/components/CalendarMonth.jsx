@@ -64,6 +64,8 @@ const propTypes = forbidExtraProps({
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
   errorMessage: PropTypes.string,
+  showAllCaptions: PropTypes.bool,
+  monthIndex: PropTypes.number,
 });
 
 const defaultProps = {
@@ -196,6 +198,8 @@ class CalendarMonth extends React.PureComponent {
       styles,
       verticalBorderSpacing,
       errorMessage,
+      showAllCaptions,
+      monthIndex,
     } = this.props;
 
     const { weeks } = this.state;
@@ -220,7 +224,8 @@ class CalendarMonth extends React.PureComponent {
     const lastDayIndex = currentMonth.clone().endOf('month').endOf('isoWeek').date();
     const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').week() - 1;
     const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`
-
+    console.log('monthIndex', monthIndex, isVisible, showAllCaptions)
+    const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions)
     return (
       <div
         {...css(
@@ -243,7 +248,7 @@ class CalendarMonth extends React.PureComponent {
               onYearSelect,
               isVisible,
             })
-          ) : (
+          ) : displayCaption && (
             <div {...css(styles.DayPicker_activePeriod)} aria-hidden="true" role="presentation">{activePeriod}</div>
           )}
         </div>

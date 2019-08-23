@@ -124,6 +124,7 @@ const propTypes = forbidExtraProps({
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
   errorMessage: PropTypes.string,
+  showAllCaptions: PropTypes.bool,
   hideWeekHeader: PropTypes.bool,
 });
 
@@ -965,6 +966,7 @@ class DayPicker extends React.PureComponent {
       isDayBlocked,
       isOutsideRange,
       errorMessage,
+      showAllCaptions,
       hideWeekHeader,
     } = this.props;
 
@@ -1148,6 +1150,7 @@ class DayPicker extends React.PureComponent {
                   isDayBlocked={isDayBlocked}
                   isOutsideRange={isOutsideRange}
                   errorMessage={errorMessage}
+                  showAllCaptions={showAllCaptions}
                 />
                 {verticalScrollable && this.renderNavigation()}
               </div>

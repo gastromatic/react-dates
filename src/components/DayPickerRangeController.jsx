@@ -76,6 +76,7 @@ const propTypes = forbidExtraProps({
   noBorder: PropTypes.bool,
   noBorderPicker: PropTypes.bool,
   hideWeekHeader: PropTypes.bool,
+  showAllCaptions: PropTypes.bool,
   verticalBorderSpacing: nonNegativeInteger,
   horizontalMonthPadding: nonNegativeInteger,
 
@@ -167,6 +168,7 @@ const defaultProps = {
   noBorder: false,
   noBorderPicker: false,
   hideWeekHeader: false,
+  showAllCaptions: false,
   transitionDuration: undefined,
   verticalBorderSpacing: undefined,
   horizontalMonthPadding: 13,
@@ -1205,6 +1207,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       errorMessage,
       noBorderPicker,
       hideWeekHeader,
+      showAllCaptions,
     } = this.props;
 
     const {
@@ -1274,6 +1277,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         isOutsideRange={isOutsideRange}
         errorMessage={errorMessage}
         hideWeekHeader={hideWeekHeader}
+        showAllCaptions={showAllCaptions}
       />
     );
   }
