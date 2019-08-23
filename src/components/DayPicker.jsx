@@ -63,7 +63,9 @@ const propTypes = forbidExtraProps({
   initialVisibleMonth: PropTypes.func,
   firstDayOfWeek: DayOfWeekShape,
   renderCalendarInfo: PropTypes.func,
+  renderCalendarInfoSecond: PropTypes.func,
   calendarInfoPosition: CalendarInfoPositionShape,
+  calendarInfoPositionSecond: CalendarInfoPositionShape,
   hideKeyboardShortcutsPanel: PropTypes.bool,
   daySize: nonNegativeInteger,
   isRTL: PropTypes.bool,
@@ -122,6 +124,7 @@ const propTypes = forbidExtraProps({
   isDayBlocked: PropTypes.func,
   isOutsideRange: PropTypes.func,
   errorMessage: PropTypes.string,
+  hideWeekHeader: PropTypes.bool,
 });
 
 export const defaultProps = {
@@ -135,7 +138,9 @@ export const defaultProps = {
   initialVisibleMonth: () => moment(),
   firstDayOfWeek: null,
   renderCalendarInfo: null,
-  calendarInfoPosition: INFO_POSITION_BOTTOM,
+  renderCalendarInfoSecond: null,
+  calendarInfoPosition: INFO_POSITION_TOP,
+  calendarInfoPositionSecond: INFO_POSITION_BOTTOM,
   hideKeyboardShortcutsPanel: false,
   daySize: DAY_SIZE,
   isRTL: false,
@@ -644,6 +649,9 @@ class DayPicker extends React.PureComponent {
   setCalendarInfoRef(ref) {
     this.calendarInfo = ref;
   }
+  setCalendarInfoRefSecond(ref) {
+    this.calendarInfoSecond = ref;
+  }
 
   setTransitionContainerRef(ref) {
     this.transitionContainer = ref;
@@ -932,9 +940,11 @@ class DayPicker extends React.PureComponent {
       renderCalendarDay,
       renderDayContents,
       renderCalendarInfo,
+      renderCalendarInfoSecond,
       renderMonthElement,
       renderKeyboardShortcutsButton,
       calendarInfoPosition,
+      calendarInfoPositionSecond,
       hideKeyboardShortcutsPanel,
       onOutsideClick,
       monthFormat,
@@ -955,6 +965,7 @@ class DayPicker extends React.PureComponent {
       isDayBlocked,
       isOutsideRange,
       errorMessage,
+      hideWeekHeader,
     } = this.props;
 
     const {
@@ -971,8 +982,6 @@ class DayPicker extends React.PureComponent {
       weekHeaders.push(this.renderWeekHeader(i));
     }
 
-    const firstWeek = currentMonth.clone().startOf('month').startOf('isoWeek').week() + 1;
-    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeek} - KW ${firstWeek + (this.calendarMonthWeeks && this.calendarMonthWeeks[0]) - 2})`
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
     let height;
     if (isHorizontal) {
@@ -995,7 +1004,7 @@ class DayPicker extends React.PureComponent {
     const shouldAnimateHeight = isHorizontal && hasSetHeight;
 
     const calendarInfoPositionTop = calendarInfoPosition === INFO_POSITION_TOP;
-    const calendarInfoPositionBottom = calendarInfoPosition === INFO_POSITION_BOTTOM;
+    const calendarInfoPositionBottom = calendarInfoPosition === INFO_POSITION_BOTTOM || calendarInfoPositionSecond === INFO_POSITION_BOTTOM;
     const calendarInfoPositionBefore = calendarInfoPosition === INFO_POSITION_BEFORE;
     const calendarInfoPositionAfter = calendarInfoPosition === INFO_POSITION_AFTER;
     const calendarInfoIsInline = calendarInfoPositionBefore || calendarInfoPositionAfter;
@@ -1006,6 +1015,13 @@ class DayPicker extends React.PureComponent {
         {...css(calendarInfoIsInline && styles.DayPicker_calendarInfo__horizontal)}
       >
         {renderCalendarInfo()}
+      </div>
+    );
+    const calendarInfoSecond = renderCalendarInfoSecond && (
+      <div
+        {...css(calendarInfoIsInline && styles.DayPicker_calendarInfo__horizontal)}
+      >
+        {renderCalendarInfoSecond()}
       </div>
     );
 
@@ -1059,7 +1075,7 @@ class DayPicker extends React.PureComponent {
               calendarInfoIsInline && isHorizontal && styles.DayPicker_wrapper__horizontal,
             )}
           >
-            <div
+            {!hideWeekHeader && (<div
               {...css(
                 styles.DayPicker_weekHeaders,
                 isHorizontal && styles.DayPicker_weekHeaders__horizontal,
@@ -1069,11 +1085,6 @@ class DayPicker extends React.PureComponent {
             >
               {weekHeaders}
             </div>
-
-            {activePeriod && false && (
-              <div {...css(styles.DayPicker_activePeriod)} aria-hidden="true" role="presentation">
-                {activePeriod}
-              </div>
             )}
 
             <div // eslint-disable-line jsx-a11y/no-noninteractive-element-interactions
@@ -1155,7 +1166,8 @@ class DayPicker extends React.PureComponent {
             </div>
           </div>
 
-          {(calendarInfoPositionBottom || calendarInfoPositionAfter) && calendarInfo}
+          {(calendarInfoPositionBottom || calendarInfoPositionAfter) && calendarInfo && !calendarInfoSecond}
+          {(calendarInfoPositionBottom || calendarInfoPositionAfter) && calendarInfoSecond}
         </OutsideClickHandler>
       </div>
     );

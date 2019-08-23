@@ -33,6 +33,7 @@ import {
   OPEN_UP,
   DAY_SIZE,
   ICON_BEFORE_POSITION,
+  INFO_POSITION_TOP,
   INFO_POSITION_BOTTOM,
   FANG_HEIGHT_PX,
   DEFAULT_VERTICAL_SPACING,
@@ -45,6 +46,8 @@ const propTypes = forbidExtraProps({
   errorMessage: PropTypes.string,
   embedded: PropTypes.bool,
   noBorderPicker: PropTypes.bool,
+  hideWeekHeader: PropTypes.bool,
+  renderCalendarInfoSecond: PropTypes.func,
 });
 
 const defaultProps = {
@@ -91,7 +94,9 @@ const defaultProps = {
   keepOpenOnDateSelect: false,
   reopenPickerOnClearDates: false,
   renderCalendarInfo: null,
-  calendarInfoPosition: INFO_POSITION_BOTTOM,
+  renderCalendarInfoSecond: null,
+  calendarInfoPosition: INFO_POSITION_TOP,
+  calendarInfoPositionSecond: INFO_POSITION_BOTTOM,
   hideKeyboardShortcutsPanel: true,
   daySize: DAY_SIZE,
   isRTL: false,
@@ -129,7 +134,8 @@ const defaultProps = {
   missingWeeks: {},
   errorMessage: "",
   embedded: false,
-  noBorderPicker: false
+  noBorderPicker: false,
+  hideWeekHeader: false,
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -411,8 +417,10 @@ class DateRangePicker extends React.PureComponent {
       renderCalendarDay,
       renderDayContents,
       renderCalendarInfo,
+      renderCalendarInfoSecond,
       renderMonthElement,
       calendarInfoPosition,
+      calendarInfoPositionSecond,
       firstDayOfWeek,
       initialVisibleMonth,
       hideKeyboardShortcutsPanel,
@@ -433,6 +441,7 @@ class DateRangePicker extends React.PureComponent {
       errorMessage,
       theme: { reactDates },
       noBorderPicker,
+      hideWeekHeader,
     } = this.props;
 
     const { dayPickerContainerStyles, isDayPickerFocused, showKeyboardShortcuts } = this.state;
@@ -503,8 +512,10 @@ class DateRangePicker extends React.PureComponent {
           renderCalendarDay={renderCalendarDay}
           renderDayContents={renderDayContents}
           renderCalendarInfo={renderCalendarInfo}
+          renderCalendarInfoSecond={renderCalendarInfoSecond}
           renderMonthElement={renderMonthElement}
           calendarInfoPosition={calendarInfoPosition}
+          calendarInfoPositionSecond={calendarInfoPositionSecond}
           isFocused={isDayPickerFocused}
           showKeyboardShortcuts={showKeyboardShortcuts}
           onBlur={this.onDayPickerBlur}
@@ -520,6 +531,7 @@ class DateRangePicker extends React.PureComponent {
           missingWeeks={missingWeeks}
           errorMessage={errorMessage}
           noBorderPicker={noBorderPicker}
+          hideWeekHeader={hideWeekHeader}
         />
 
         {withFullScreenPortal && (

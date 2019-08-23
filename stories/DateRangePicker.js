@@ -121,5 +121,14 @@ storiesOf('DateRangePicker (DRP)', module)
       autoFocus
       embedded
       noBorderPicker
+      hideWeekHeader
+      calendarInfoPosition="top"
+      calendarInfoPositionSecond="bottom"
+      renderCalendarInfo={() => (
+        <div>Top Panel</div>
+      )}
+      renderCalendarInfoSecond={() => (
+        <div>Bottom Panel</div>
+      )}
     />
   )));

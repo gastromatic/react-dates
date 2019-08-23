@@ -35,6 +35,7 @@ import {
   HORIZONTAL_ORIENTATION,
   VERTICAL_SCROLLABLE,
   DAY_SIZE,
+  INFO_POSITION_TOP,
   INFO_POSITION_BOTTOM,
 } from '../constants';
 
@@ -74,6 +75,7 @@ const propTypes = forbidExtraProps({
   daySize: nonNegativeInteger,
   noBorder: PropTypes.bool,
   noBorderPicker: PropTypes.bool,
+  hideWeekHeader: PropTypes.bool,
   verticalBorderSpacing: nonNegativeInteger,
   horizontalMonthPadding: nonNegativeInteger,
 
@@ -87,8 +89,10 @@ const propTypes = forbidExtraProps({
   renderCalendarDay: PropTypes.func,
   renderDayContents: PropTypes.func,
   renderCalendarInfo: PropTypes.func,
+  renderCalendarInfoSecond: PropTypes.func,
   renderKeyboardShortcutsButton: PropTypes.func,
   calendarInfoPosition: CalendarInfoPositionShape,
+  calendarInfoPositionSecond: CalendarInfoPositionShape,
   firstDayOfWeek: DayOfWeekShape,
   verticalHeight: nonNegativeInteger,
   transitionDuration: nonNegativeInteger,
@@ -153,13 +157,16 @@ const defaultProps = {
   renderCalendarDay: undefined,
   renderDayContents: null,
   renderCalendarInfo: null,
+  renderCalendarInfoSecond: null,
   renderMonthElement: null,
   renderKeyboardShortcutsButton: undefined,
-  calendarInfoPosition: INFO_POSITION_BOTTOM,
+  calendarInfoPosition: INFO_POSITION_TOP,
+  calendarInfoPositionSecond: INFO_POSITION_BOTTOM,
   firstDayOfWeek: null,
   verticalHeight: null,
   noBorder: false,
   noBorderPicker: false,
+  hideWeekHeader: false,
   transitionDuration: undefined,
   verticalBorderSpacing: undefined,
   horizontalMonthPadding: 13,
@@ -1175,8 +1182,10 @@ export default class DayPickerRangeController extends React.PureComponent {
       renderCalendarDay,
       renderDayContents,
       renderCalendarInfo,
+      renderCalendarInfoSecond,
       renderMonthElement,
       calendarInfoPosition,
+      calendarInfoPositionSecond,
       onBlur,
       onShiftTab,
       onTab,
@@ -1195,6 +1204,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       isOutsideRange,
       errorMessage,
       noBorderPicker,
+      hideWeekHeader,
     } = this.props;
 
     const {
@@ -1238,9 +1248,11 @@ export default class DayPickerRangeController extends React.PureComponent {
         renderCalendarDay={renderCalendarDay}
         renderDayContents={renderDayContents}
         renderCalendarInfo={renderCalendarInfo}
+        renderCalendarInfoSecond={renderCalendarInfoSecond}
         renderMonthElement={renderMonthElement}
         renderKeyboardShortcutsButton={renderKeyboardShortcutsButton}
         calendarInfoPosition={calendarInfoPosition}
+        calendarInfoPositionSecond={calendarInfoPositionSecond}
         firstDayOfWeek={firstDayOfWeek}
         hideKeyboardShortcutsPanel={hideKeyboardShortcutsPanel}
         isFocused={isFocused}
@@ -1261,6 +1273,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         isDayBlocked={isDayBlocked}
         isOutsideRange={isOutsideRange}
         errorMessage={errorMessage}
+        hideWeekHeader={hideWeekHeader}
       />
     );
   }
