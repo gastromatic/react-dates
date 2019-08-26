@@ -115,7 +115,7 @@ storiesOf('DateRangePicker (DRP)', module)
   .add('vertical with custom height', withInfo()(() => (
     <DateRangePickerWrapper
       orientation={VERTICAL_ORIENTATION}
-      verticalHeight={568}
+      verticalHeight={360}
       verticalSpacing={0}
       keepOpenOnDateSelect
       autoFocus

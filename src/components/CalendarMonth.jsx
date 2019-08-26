@@ -69,6 +69,7 @@ const propTypes = forbidExtraProps({
   monthIndex: PropTypes.number,
   endDate: momentPropTypes.momentObj,
   missingWeeks: PropTypes.object,
+  onFocusChange: PropTypes.func,
 });
 
 const defaultProps = {
@@ -279,7 +280,7 @@ class CalendarMonth extends React.PureComponent {
           <tbody>
             {weeks.map((week, i) => (!(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
               [<CalendarWeek key={i}>
-                <td style={{ padding: 5 }} className={missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].week()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                <td style={{ padding: 5 }} className={week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].week()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
                   {i === 0 && Number(week[0] && week[0].date()) > 7
                     ? ''
                     : `${week[0] && week[0].week()}`}

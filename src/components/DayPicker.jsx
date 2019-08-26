@@ -1117,6 +1117,7 @@ class DayPicker extends React.PureComponent {
               <div
                 {...css(
                   styles.DayPicker_transitionContainer,
+                  verticalHeight === 0 && styles.DayPicker_transitionContainer__auto,
                   shouldAnimateHeight && styles.DayPicker_transitionContainer__horizontal,
                   this.isVertical() && styles.DayPicker_transitionContainer__vertical,
                   verticalScrollable && styles.DayPicker_transitionContainer__verticalScrollable,
@@ -1306,6 +1307,10 @@ export default withStyles(
       position: 'relative',
       overflow: 'hidden',
       borderRadius: 3,
+    },
+
+    DayPicker_transitionContainer__auto: {
+      height: 'auto !important',
     },
 
     DayPicker_transitionContainer__horizontal: {

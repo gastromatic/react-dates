@@ -49,6 +49,7 @@ const propTypes = forbidExtraProps({
   hideWeekHeader: PropTypes.bool,
   showAllCaptions: PropTypes.bool,
   renderCalendarInfoSecond: PropTypes.func,
+  calendarInfoPositionSecond: PropTypes.string,
 });
 
 const defaultProps = {
