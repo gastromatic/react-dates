@@ -311,8 +311,7 @@ class CalendarMonthGrid extends React.PureComponent {
         onTransitionEnd={onMonthTransitionEnd}
       >
         {months.map((month, i) => {
-          const isVisible =
-            i >= firstVisibleMonthIndex && i < firstVisibleMonthIndex + numberOfMonths;
+          const isVisible = i >= firstVisibleMonthIndex && i < firstVisibleMonthIndex + numberOfMonths;
           const hideForAnimation = i === 0 && !isVisible;
           const showForAnimation = i === 0 && isAnimating && isVisible;
           const monthString = toISOMonthString(month);
@@ -323,23 +322,23 @@ class CalendarMonthGrid extends React.PureComponent {
               {...css(
                 isHorizontal && styles.CalendarMonthGrid_month__horizontal,
                 hideForAnimation && styles.CalendarMonthGrid_month__hideForAnimation,
-                showForAnimation &&
-                  !isVertical &&
-                  !isRTL && {
-                    position: 'absolute',
-                    left: -calendarMonthWidth,
-                  },
-                showForAnimation &&
-                  !isVertical &&
-                  isRTL && {
-                    position: 'absolute',
-                    right: 0,
-                  },
-                showForAnimation &&
-                  isVertical && {
-                    position: 'absolute',
-                    top: -translationValue,
-                  },
+                showForAnimation
+                  && !isVertical
+                  && !isRTL && {
+                  position: 'absolute',
+                  left: -calendarMonthWidth,
+                },
+                showForAnimation
+                  && !isVertical
+                  && isRTL && {
+                  position: 'absolute',
+                  right: 0,
+                },
+                showForAnimation
+                  && isVertical && {
+                  position: 'absolute',
+                  top: -translationValue,
+                },
                 !isVisible && !isAnimating && styles.CalendarMonthGrid_month__hidden,
               )}
             >
@@ -387,7 +386,11 @@ CalendarMonthGrid.propTypes = propTypes;
 CalendarMonthGrid.defaultProps = defaultProps;
 
 export default withStyles(
-  ({ reactDates: { color, noScrollBarOnVerticalScrollable, spacing, zIndex } }) => ({
+  ({
+    reactDates: {
+      color, noScrollBarOnVerticalScrollable, spacing, zIndex,
+    },
+  }) => ({
     CalendarMonthGrid: {
       background: color.background,
       textAlign: noflip('left'),
@@ -416,8 +419,8 @@ export default withStyles(
           '-webkit-appearance': 'none',
           display: 'none',
         },
-      }) ||
-        {}),
+      })
+        || {}),
     },
 
     CalendarMonthGrid_month__horizontal: {

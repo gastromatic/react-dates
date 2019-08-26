@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { forbidExtraProps, or, childrenOfType, number } from 'airbnb-prop-types';
+import {
+  forbidExtraProps, or, childrenOfType, number,
+} from 'airbnb-prop-types';
 
 import CalendarDay from './CalendarDay';
 import CustomizableCalendarDay from './CustomizableCalendarDay';

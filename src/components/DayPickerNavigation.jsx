@@ -31,7 +31,7 @@ const propTypes = forbidExtraProps({
 
   isRTL: PropTypes.bool,
   position: PropTypes.string,
-  type: PropTypes.string
+  type: PropTypes.string,
 });
 
 const defaultProps = {
@@ -120,18 +120,18 @@ function DayPickerNavigation({
         isHorizontal && styles.DayPickerNavigation__horizontal,
         ...(isVertical
           ? [
-              styles.DayPickerNavigation__vertical,
-              isDefaultNav &&
-                (position === 'top'
+            styles.DayPickerNavigation__vertical,
+            isDefaultNav
+                && (position === 'top'
                   ? styles.DayPickerNavigation__verticalTop
                   : styles.DayPickerNavigation__verticalDefault),
-            ]
+          ]
           : []),
         ...(isVerticalScrollable
           ? [
-              styles.DayPickerNavigation__verticalScrollable,
-              isDefaultNav && styles.DayPickerNavigation__verticalScrollableDefault,
-            ]
+            styles.DayPickerNavigation__verticalScrollable,
+            isDefaultNav && styles.DayPickerNavigation__verticalScrollableDefault,
+          ]
           : []),
       )}
     >
@@ -145,27 +145,27 @@ function DayPickerNavigation({
             disablePrev && styles.DayPickerNavigation_button__disabled,
             ...(isHorizontal
               ? [
-                  styles.DayPickerNavigation_button__horizontal,
-                  ...(isDefaultNavPrev
-                    ? [
-                        styles.DayPickerNavigation_button__horizontalDefault,
-                        !isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
-                        isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
-                      ]
-                    : []),
-                ]
+                styles.DayPickerNavigation_button__horizontal,
+                ...(isDefaultNavPrev
+                  ? [
+                    styles.DayPickerNavigation_button__horizontalDefault,
+                    !isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
+                    isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
+                  ]
+                  : []),
+              ]
               : []),
             ...(isVertical
               ? [
-                  styles.DayPickerNavigation_button__vertical,
-                  styles.DayPickerNavigation_button__verticalPrev,
-                  ...(isDefaultNavPrev
-                    ? [
-                        styles.DayPickerNavigation_button__verticalDefault,
-                        styles.DayPickerNavigation_prevButton__verticalDefault,
-                      ]
-                    : []),
-                ]
+                styles.DayPickerNavigation_button__vertical,
+                styles.DayPickerNavigation_button__verticalPrev,
+                ...(isDefaultNavPrev
+                  ? [
+                    styles.DayPickerNavigation_button__verticalDefault,
+                    styles.DayPickerNavigation_prevButton__verticalDefault,
+                  ]
+                  : []),
+              ]
               : []),
           )}
           aria-disabled={disablePrev ? true : undefined}
@@ -174,17 +174,17 @@ function DayPickerNavigation({
           onKeyUp={
             disablePrev
               ? undefined
-              : e => {
-                  const { key } = e;
-                  if (key === 'Enter' || key === ' ') onPrevMonthClick(e);
-                }
+              : (e) => {
+                const { key } = e;
+                if (key === 'Enter' || key === ' ') onPrevMonthClick(e);
+              }
           }
           onMouseUp={
             disablePrev
               ? undefined
-              : e => {
-                  e.currentTarget.blur();
-                }
+              : (e) => {
+                e.currentTarget.blur();
+              }
           }
         >
           {navPrevIcon}
@@ -201,29 +201,29 @@ function DayPickerNavigation({
             disableNext && styles.DayPickerNavigation_button__disabled,
             ...(isHorizontal
               ? [
-                  styles.DayPickerNavigation_button__horizontal,
-                  ...(isDefaultNavNext
-                    ? [
-                        styles.DayPickerNavigation_button__horizontalDefault,
-                        isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
-                        !isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
-                      ]
-                    : []),
-                ]
+                styles.DayPickerNavigation_button__horizontal,
+                ...(isDefaultNavNext
+                  ? [
+                    styles.DayPickerNavigation_button__horizontalDefault,
+                    isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
+                    !isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
+                  ]
+                  : []),
+              ]
               : []),
             ...(isVertical
               ? [
-                  styles.DayPickerNavigation_button__vertical,
-                  styles.DayPickerNavigation_nextButton__vertical,
-                  ...(isDefaultNavNext
-                    ? [
-                        styles.DayPickerNavigation_button__verticalDefault,
-                        styles.DayPickerNavigation_nextButton__verticalDefault,
-                        isVerticalScrollable &&
-                          styles.DayPickerNavigation_nextButton__verticalScrollableDefault,
-                      ]
-                    : []),
-                ]
+                styles.DayPickerNavigation_button__vertical,
+                styles.DayPickerNavigation_nextButton__vertical,
+                ...(isDefaultNavNext
+                  ? [
+                    styles.DayPickerNavigation_button__verticalDefault,
+                    styles.DayPickerNavigation_nextButton__verticalDefault,
+                    isVerticalScrollable
+                          && styles.DayPickerNavigation_nextButton__verticalScrollableDefault,
+                  ]
+                  : []),
+              ]
               : []),
           )}
           aria-disabled={disableNext ? true : undefined}
@@ -232,17 +232,17 @@ function DayPickerNavigation({
           onKeyUp={
             disableNext
               ? undefined
-              : e => {
-                  const { key } = e;
-                  if (key === 'Enter' || key === ' ') onNextMonthClick(e);
-                }
+              : (e) => {
+                const { key } = e;
+                if (key === 'Enter' || key === ' ') onNextMonthClick(e);
+              }
           }
           onMouseUp={
             disableNext
               ? undefined
-              : e => {
-                  e.currentTarget.blur();
-                }
+              : (e) => {
+                e.currentTarget.blur();
+              }
           }
         >
           {navNextIcon}

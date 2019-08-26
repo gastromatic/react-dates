@@ -170,7 +170,7 @@ class CalendarMonth extends React.PureComponent {
     if (this.isBlocked(startDate) || this.isBlocked(endDate)) {
       return;
     }
-    onDatesChange({startDate, endDate});
+    onDatesChange({ startDate, endDate });
   }
 
   render() {
@@ -211,21 +211,21 @@ class CalendarMonth extends React.PureComponent {
     let lastInvalidWeek = null;
 
     weeks.forEach((week, i) => {
-      week.forEach(day => {
+      week.forEach((day) => {
         if (day && modifiers && modifiers[toISODateString(day)]
           && (modifiers[toISODateString(day)].has('invalid-span') || modifiers[toISODateString(day)].has('selected-invalid-end'))) {
           lastInvalidWeek = i;
         }
-      })
-    })
+      });
+    });
 
     const isFirstDay = currentMonth.clone().startOf('month').startOf('isoWeek').isSame(currentMonth.clone().startOf('month'));
     const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').week() + (isFirstDay ? 0 : 1);
     const lastDayIndex = currentMonth.clone().endOf('month').endOf('isoWeek').date();
     const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').week() - 1;
-    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`
-    console.log('monthIndex', monthIndex, isVisible, showAllCaptions)
-    const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions)
+    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
+    console.log('monthIndex', monthIndex, isVisible, showAllCaptions);
+    const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions);
     return (
       <div
         {...css(
@@ -262,54 +262,54 @@ class CalendarMonth extends React.PureComponent {
           role="presentation"
         >
           <tbody>
-            {weeks.map((week, i) =>
-              !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
-                [<CalendarWeek key={i}>
-                  <td style={{ padding: 5 }} onClick={() => {this.setWeek({startDate: week[0], endDate: week[6]})}}>
-                    {i === 0 && Number(week[0] && week[0].date()) > 7
-                      ? ''
-                      : `${week[0] && week[0].week()}`}
-                  </td>
-                  {week.map((day, dayOfWeek) =>
-                    renderCalendarDay({
-                      key: dayOfWeek,
-                      day,
-                      daySize,
-                      isOutsideDay: !day || day.month() !== month.month(),
-                      tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
-                      isFocused,
-                      onDayMouseEnter,
-                      onDayMouseLeave,
-                      onDayClick,
-                      renderDayContents,
-                      phrases,
-                      modifiers: modifiers[toISODateString(day)],
-                      ariaLabelFormat: dayAriaLabelFormat,
-                      currentMonth,
-                    }),
-                  )}
-                  <td style={{ padding: 5, textAlign: 'left' }}>
-                    {i === 0 && Number(week[0] && week[0].date()) < 8 ? monthTitle : ''}
-                    {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
-                      ? month
-                          .clone()
-                          .add(1, 'month')
-                          .format(monthFormat)
-                      : ''}
-                  </td>
-                </CalendarWeek>,
-                  lastInvalidWeek === i && errorMessage ? <CalendarWeek key={`${i}_error`}>
-                  <td style={{ width: 10 }}></td>
+            {weeks.map((week, i) => (!(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
+              [<CalendarWeek key={i}>
+                <td style={{ padding: 5 }} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                  {i === 0 && Number(week[0] && week[0].date()) > 7
+                    ? ''
+                    : `${week[0] && week[0].week()}`}
+                </td>
+                {week.map((day, dayOfWeek) => renderCalendarDay({
+                  key: dayOfWeek,
+                  day,
+                  daySize,
+                  isOutsideDay: !day || day.month() !== month.month(),
+                  tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
+                  isFocused,
+                  onDayMouseEnter,
+                  onDayMouseLeave,
+                  onDayClick,
+                  renderDayContents,
+                  phrases,
+                  modifiers: modifiers[toISODateString(day)],
+                  ariaLabelFormat: dayAriaLabelFormat,
+                  currentMonth,
+                }))}
+                <td style={{ padding: 5, textAlign: 'left' }}>
+                  {i === 0 && Number(week[0] && week[0].date()) < 8 ? monthTitle : ''}
+                  {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
+                    ? month
+                      .clone()
+                      .add(1, 'month')
+                      .format(monthFormat)
+                    : ''}
+                </td>
+               </CalendarWeek>,
+              lastInvalidWeek === i && errorMessage ? (
+                <CalendarWeek key={`${i}_error`}>
+                  <td style={{ width: 10 }} />
                   <td
                     colSpan={7}
                     {...css(
                       styles.CalendarMonth_errorPeriod,
                     )}
-                  >{errorMessage}</td>
-                  <td></td>
-                </CalendarWeek> : null
-              ]) : null,
-            )}
+                  >
+                    {errorMessage}
+                  </td>
+                  <td />
+                </CalendarWeek>
+              ) : null,
+              ]) : null))}
           </tbody>
         </table>
       </div>
@@ -320,7 +320,11 @@ class CalendarMonth extends React.PureComponent {
 CalendarMonth.propTypes = propTypes;
 CalendarMonth.defaultProps = defaultProps;
 
-export default withStyles(({ reactDates: { color, font, spacing, zIndex } }) => ({
+export default withStyles(({
+  reactDates: {
+    color, font, spacing, zIndex,
+  },
+}) => ({
   CalendarMonth: {
     background: color.background,
     textAlign: 'center',

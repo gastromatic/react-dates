@@ -181,8 +181,8 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
 
     return (
       <div>
-        {renderKeyboardShortcutsButton &&
-          renderKeyboardShortcutsButton({
+        {renderKeyboardShortcutsButton
+          && renderKeyboardShortcutsButton({
             // passing in context-specific props
             ref: this.setShowKeyboardShortcutsButtonRef,
             onClick: this.onShowKeyboardShortcutsButtonClick,
@@ -201,7 +201,7 @@ class DayPickerKeyboardShortcuts extends React.PureComponent {
             type="button"
             aria-label={toggleButtonText}
             onClick={this.onShowKeyboardShortcutsButtonClick}
-            onMouseUp={e => {
+            onMouseUp={(e) => {
               e.currentTarget.blur();
             }}
           >
