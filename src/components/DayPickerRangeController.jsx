@@ -1208,6 +1208,8 @@ export default class DayPickerRangeController extends React.PureComponent {
       noBorderPicker,
       hideWeekHeader,
       showAllCaptions,
+      missingWeeks,
+      onFocusChange,
     } = this.props;
 
     const {
@@ -1278,6 +1280,8 @@ export default class DayPickerRangeController extends React.PureComponent {
         errorMessage={errorMessage}
         hideWeekHeader={hideWeekHeader}
         showAllCaptions={showAllCaptions}
+        missingWeeks={missingWeeks}
+        onFocusChange={onFocusChange}
       />
     );
   }

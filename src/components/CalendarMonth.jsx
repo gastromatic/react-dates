@@ -29,6 +29,7 @@ import {
   HORIZONTAL_ORIENTATION,
   VERTICAL_SCROLLABLE,
   DAY_SIZE,
+  START_DATE,
 } from '../constants';
 
 const propTypes = forbidExtraProps({
@@ -67,6 +68,7 @@ const propTypes = forbidExtraProps({
   showAllCaptions: PropTypes.bool,
   monthIndex: PropTypes.number,
   endDate: momentPropTypes.momentObj,
+  missingWeeks: PropTypes.object,
 });
 
 const defaultProps = {
@@ -167,21 +169,21 @@ class CalendarMonth extends React.PureComponent {
   }
 
   setWeek({ startDate, endDate }) {
-    const { onDatesChange } = this.props;
+    const { onDatesChange, onFocusChange } = this.props;
     let newStartDate = startDate.clone();
-    console.log('newStartDate start', newStartDate.format('DD-MM'))
+
     if (this.isBlocked(startDate) && this.isBlocked(endDate)) {
       return;
     }
     for (var m = moment(startDate).clone(); m.diff(endDate, 'days') <= 0; m.add(1, 'days')) {
-      console.log(m.format('YYYY-MM-DD'));
       if (!this.isBlocked(m)) {
         newStartDate = m.clone();
         break;
       }
     }
-    console.log('newStartDate end', newStartDate.format('DD-MM'))
+
     onDatesChange({ startDate: newStartDate, endDate });
+    onFocusChange(START_DATE);
   }
 
   render() {
@@ -212,6 +214,7 @@ class CalendarMonth extends React.PureComponent {
       showAllCaptions,
       monthIndex,
       endDate,
+      missingWeeks,
     } = this.props;
 
     const { weeks } = this.state;
@@ -276,7 +279,7 @@ class CalendarMonth extends React.PureComponent {
           <tbody>
             {weeks.map((week, i) => (!(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
               [<CalendarWeek key={i}>
-                <td style={{ padding: 5 }} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                <td style={{ padding: 5 }} className={missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].week()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
                   {i === 0 && Number(week[0] && week[0].date()) > 7
                     ? ''
                     : `${week[0] && week[0].week()}`}
