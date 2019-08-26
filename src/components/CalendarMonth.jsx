@@ -66,6 +66,7 @@ const propTypes = forbidExtraProps({
   errorMessage: PropTypes.string,
   showAllCaptions: PropTypes.bool,
   monthIndex: PropTypes.number,
+  endDate: momentPropTypes.momentObj,
 });
 
 const defaultProps = {
@@ -167,10 +168,20 @@ class CalendarMonth extends React.PureComponent {
 
   setWeek({ startDate, endDate }) {
     const { onDatesChange } = this.props;
-    if (this.isBlocked(startDate) || this.isBlocked(endDate)) {
+    let newStartDate = startDate.clone();
+    console.log('newStartDate start', newStartDate.format('DD-MM'))
+    if (this.isBlocked(startDate) && this.isBlocked(endDate)) {
       return;
     }
-    onDatesChange({ startDate, endDate });
+    for (var m = moment(startDate).clone(); m.diff(endDate, 'days') <= 0; m.add(1, 'days')) {
+      console.log(m.format('YYYY-MM-DD'));
+      if (!this.isBlocked(m)) {
+        newStartDate = m.clone();
+        break;
+      }
+    }
+    console.log('newStartDate end', newStartDate.format('DD-MM'))
+    onDatesChange({ startDate: newStartDate, endDate });
   }
 
   render() {
@@ -200,6 +211,7 @@ class CalendarMonth extends React.PureComponent {
       errorMessage,
       showAllCaptions,
       monthIndex,
+      endDate,
     } = this.props;
 
     const { weeks } = this.state;
@@ -219,12 +231,12 @@ class CalendarMonth extends React.PureComponent {
       });
     });
 
+    const lastPeriodMonth = endDate && currentMonth && endDate.month() === currentMonth.month();
+
     const isFirstDay = currentMonth.clone().startOf('month').startOf('isoWeek').isSame(currentMonth.clone().startOf('month'));
     const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').week() + (isFirstDay ? 0 : 1);
-    const lastDayIndex = currentMonth.clone().endOf('month').endOf('isoWeek').date();
     const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').week() - 1;
     const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
-    console.log('monthIndex', monthIndex, isVisible, showAllCaptions);
     const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions);
     return (
       <div
@@ -285,17 +297,19 @@ class CalendarMonth extends React.PureComponent {
                   ariaLabelFormat: dayAriaLabelFormat,
                   currentMonth,
                 }))}
-                <td style={{ padding: 5, textAlign: 'left' }}>
-                  {i === 0 && Number(week[0] && week[0].date()) < 8 ? monthTitle : ''}
+                <td style={{ padding: '5px 5px 5px 10px', textAlign: 'left' }}>
+                  {i === 0 && Number(week[0] && week[0].date()) < 8 ? <div>{monthTitle}<div className="divider"></div></div> : ''}
                   {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
-                    ? month
+                    ? <div>{month
                       .clone()
                       .add(1, 'month')
-                      .format(monthFormat)
+                      .format(monthFormat)}
+                      <div className="divider"></div>
+                    </div>
                     : ''}
                 </td>
                </CalendarWeek>,
-              lastInvalidWeek === i && errorMessage ? (
+              lastInvalidWeek === i && lastPeriodMonth && errorMessage ? (
                 <CalendarWeek key={`${i}_error`}>
                   <td style={{ width: 10 }} />
                   <td

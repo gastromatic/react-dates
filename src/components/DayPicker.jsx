@@ -973,6 +973,7 @@ class DayPicker extends React.PureComponent {
       errorMessage,
       showAllCaptions,
       hideWeekHeader,
+      endDate,
     } = this.props;
 
     const {
@@ -1155,6 +1156,7 @@ class DayPicker extends React.PureComponent {
                   isOutsideRange={isOutsideRange}
                   errorMessage={errorMessage}
                   showAllCaptions={showAllCaptions}
+                  endDate={endDate}
                 />
                 {verticalScrollable && this.renderNavigation()}
               </div>

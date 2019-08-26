@@ -70,6 +70,7 @@ const propTypes = forbidExtraProps({
   isOutsideRange: PropTypes.func,
   errorMessage: PropTypes.string,
   showAllCaptions: PropTypes.bool,
+  endDate: momentPropTypes.momentObj,
 });
 
 const defaultProps = {
@@ -275,6 +276,7 @@ class CalendarMonthGrid extends React.PureComponent {
       isOutsideRange,
       errorMessage,
       showAllCaptions,
+      endDate,
     } = this.props;
 
     const { months } = this.state;
@@ -373,6 +375,7 @@ class CalendarMonthGrid extends React.PureComponent {
                 errorMessage={errorMessage}
                 monthIndex={i}
                 showAllCaptions={showAllCaptions}
+                endDate={endDate}
               />
             </div>
           );

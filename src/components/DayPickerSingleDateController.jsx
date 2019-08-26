@@ -335,7 +335,7 @@ export default class DayPickerSingleDateController extends React.PureComponent {
     onDateChange(day);
     if (!keepOpenOnDateSelect) {
       onFocusChange({ focused: false });
-      onClose({ date: day });
+      // onClose({ date: day });
     }
   }
 
