@@ -472,7 +472,7 @@ class DateRangePicker extends React.PureComponent {
           orientation === VERTICAL_ORIENTATION && styles.DateRangePicker_picker__vertical,
           !withAnyPortal
             && openDirection === OPEN_DOWN && {
-            top: inputHeight + verticalSpacing,
+            top: 0, // previous value: inputHeight + verticalSpacing
           },
           !withAnyPortal
             && openDirection === OPEN_UP && {

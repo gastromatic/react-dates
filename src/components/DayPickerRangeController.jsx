@@ -1116,7 +1116,14 @@ export default class DayPickerRangeController extends React.PureComponent {
 
   isInInvalidSpan(day) {
     const { startDate, endDate } = this.props;
-    return day.isBetween(startDate, endDate, 'days') && startDate && day.month() !== startDate.month() && day.clone().startOf('isoWeek').month() == day.month();
+    return day.isBetween(startDate, endDate, 'days') && startDate && day.month() !== startDate.month() &&
+      (day.clone().startOf('isoWeek').month() == day.month() ||
+        (
+          day.clone().startOf('isoWeek').month() != day.month() &&
+          day.clone().startOf('isoWeek').month() == day.clone().subtract(1,'month').month() &&
+          day.clone().startOf('isoWeek').month() > startDate.month()
+        )
+      );
   }
 
   isInMissingSpan(day) {
