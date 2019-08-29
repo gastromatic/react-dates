@@ -238,8 +238,8 @@ class CalendarMonth extends React.PureComponent {
     const lastPeriodMonth = endDate && currentMonth && endDate.month() === currentMonth.month();
 
     const isFirstDay = currentMonth.clone().startOf('month').startOf('isoWeek').isSame(currentMonth.clone().startOf('month'));
-    const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').week() + (isFirstDay ? 0 : 1);
-    const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').week() - 1;
+    const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').isoWeek() + (isFirstDay ? 0 : 1);
+    const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').isoWeek() - 1;
     const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
     const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions);
     let startWeek = null;
@@ -282,10 +282,10 @@ class CalendarMonth extends React.PureComponent {
             {weeks.map((week, i) => {
               let res = !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
                 [<CalendarWeek key={i}>
-                  <td style={{ padding: 5 }} className={week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].week()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                  <td style={{ padding: 5 }} className={week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].isoWeek()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
                     {i === 0 && Number(week[0] && week[0].date()) > 7
                       ? ''
-                      : `${week[0] && week[0].week()}`}
+                      : `${week[0] && week[0].isoWeek()}`}
                   </td>
                   {week.map((day, dayOfWeek) => renderCalendarDay({
                     key: dayOfWeek,

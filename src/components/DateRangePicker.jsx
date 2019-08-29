@@ -50,6 +50,7 @@ const propTypes = forbidExtraProps({
   showAllCaptions: PropTypes.bool,
   renderCalendarInfoSecond: PropTypes.func,
   calendarInfoPositionSecond: PropTypes.string,
+  emptyPeriodMessage: PropTypes.string,
 });
 
 const defaultProps = {
@@ -139,6 +140,7 @@ const defaultProps = {
   noBorderPicker: false,
   hideWeekHeader: false,
   showAllCaptions: false,
+  emptyPeriodMessage: '',
 };
 
 class DateRangePicker extends React.PureComponent {
