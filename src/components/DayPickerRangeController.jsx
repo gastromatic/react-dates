@@ -540,10 +540,13 @@ export default class DayPickerRangeController extends React.PureComponent {
       startDateOffset,
       endDateOffset,
       disabled,
+      missingWeeks,
     } = this.props;
 
     if (e) e.preventDefault();
-    if (this.isBlocked(day)) return;
+    const key = day ? `${day.year()}${day.week()}` : '';
+
+    if (this.isBlocked(day) || missingWeeks[key]) return;
 
     let { startDate, endDate } = this.props;
 
@@ -1128,7 +1131,7 @@ export default class DayPickerRangeController extends React.PureComponent {
 
   isInMissingSpan(day) {
     const { missingWeeks } = this.props;
-    const key = day ? `${day.year()}${day.week()}` : '';
+    const key = day ? `${day.year()}${day.isoWeek()}` : '';
     return missingWeeks[key];
   }
 
