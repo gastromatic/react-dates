@@ -242,6 +242,7 @@ class CalendarMonth extends React.PureComponent {
     const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').week() - 1;
     const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
     const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions);
+    let startWeek = null;
     return (
       <div
         {...css(
@@ -278,56 +279,60 @@ class CalendarMonth extends React.PureComponent {
           role="presentation"
         >
           <tbody>
-            {weeks.map((week, i) => (!(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
-              [<CalendarWeek key={i}>
-                <td style={{ padding: 5 }} className={week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].week()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
-                  {i === 0 && Number(week[0] && week[0].date()) > 7
-                    ? ''
-                    : `${week[0] && week[0].week()}`}
-                </td>
-                {week.map((day, dayOfWeek) => renderCalendarDay({
-                  key: dayOfWeek,
-                  day,
-                  daySize,
-                  isOutsideDay: !day || day.month() !== month.month(),
-                  tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
-                  isFocused,
-                  onDayMouseEnter,
-                  onDayMouseLeave,
-                  onDayClick,
-                  renderDayContents,
-                  phrases,
-                  modifiers: modifiers[toISODateString(day)],
-                  ariaLabelFormat: dayAriaLabelFormat,
-                  currentMonth,
-                }))}
-                <td style={{ padding: '5px 5px 5px 10px', textAlign: 'left' }}>
-                  {i === 0 && Number(week[0] && week[0].date()) < 8 ? <div>{monthTitle}<div className="divider"></div></div> : ''}
-                  {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
-                    ? <div>{month
-                      .clone()
-                      .add(1, 'month')
-                      .format(monthFormat)}
-                      <div className="divider"></div>
-                    </div>
-                    : ''}
-                </td>
-               </CalendarWeek>,
-              lastInvalidWeek === i && lastPeriodMonth && errorMessage ? (
-                <CalendarWeek key={`${i}_error`}>
-                  <td style={{ width: 10 }} />
-                  <td
-                    colSpan={7}
-                    {...css(
-                      styles.CalendarMonth_errorPeriod,
-                    )}
-                  >
-                    {errorMessage}
+            {weeks.map((week, i) => {
+              let res = !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
+                [<CalendarWeek key={i}>
+                  <td style={{ padding: 5 }} className={week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].week()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                    {i === 0 && Number(week[0] && week[0].date()) > 7
+                      ? ''
+                      : `${week[0] && week[0].week()}`}
                   </td>
-                  <td />
-                </CalendarWeek>
-              ) : null,
-              ]) : null))}
+                  {week.map((day, dayOfWeek) => renderCalendarDay({
+                    key: dayOfWeek,
+                    day,
+                    daySize,
+                    isOutsideDay: !day || day.month() !== month.month(),
+                    tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
+                    isFocused,
+                    onDayMouseEnter,
+                    onDayMouseLeave,
+                    onDayClick,
+                    renderDayContents,
+                    phrases,
+                    modifiers: modifiers[toISODateString(day)],
+                    ariaLabelFormat: dayAriaLabelFormat,
+                    currentMonth,
+                  }))}
+                  <td style={{ padding: '5px 5px 5px 10px', textAlign: 'left' }}>
+                    {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}<div className="divider"></div></div> : ''}
+                    {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
+                      ? <div>{month
+                        .clone()
+                        .add(1, 'month')
+                        .format(monthFormat)}
+                        <div className="divider"></div>
+                      </div>
+                      : ''}
+                  </td>
+                </CalendarWeek>,
+                  lastInvalidWeek === i && lastPeriodMonth && errorMessage ? (
+                    <CalendarWeek key={`${i}_error`}>
+                      <td style={{ width: 10 }} />
+                      <td
+                        colSpan={7}
+                        {...css(
+                          styles.CalendarMonth_errorPeriod,
+                        )}
+                      >
+                        {errorMessage}
+                      </td>
+                      <td />
+                    </CalendarWeek>
+                  ) : null,
+                ]) : null
+                startWeek = res ? i : null;
+              return res;
+            })}
           </tbody>
         </table>
       </div>
