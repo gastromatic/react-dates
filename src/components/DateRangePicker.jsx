@@ -39,6 +39,8 @@ import {
   DEFAULT_VERTICAL_SPACING,
 } from '../constants';
 
+moment.locale('de');
+
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
   ...DateRangePickerShape,
