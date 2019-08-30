@@ -68,6 +68,7 @@ const propTypes = forbidExtraProps({
   showAllCaptions: PropTypes.bool,
   monthIndex: PropTypes.number,
   endDate: momentPropTypes.momentObj,
+  startDate: momentPropTypes.momentObj,
   missingWeeks: PropTypes.object,
   onFocusChange: PropTypes.func,
 });
@@ -214,6 +215,7 @@ class CalendarMonth extends React.PureComponent {
       errorMessage,
       showAllCaptions,
       monthIndex,
+      startDate,
       endDate,
       missingWeeks,
     } = this.props;
@@ -239,9 +241,10 @@ class CalendarMonth extends React.PureComponent {
 
     const isFirstDay = currentMonth.clone().startOf('month').startOf('isoWeek').isSame(currentMonth.clone().startOf('month'));
     const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').isoWeek() + (isFirstDay ? 0 : 1);
-    const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').isoWeek() - 1;
+    const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').isoWeek();
     const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
-    const displayCaption = showAllCaptions || (monthIndex === 1 && !showAllCaptions);
+    const displayCaption = showAllCaptions || (!showAllCaptions && !startDate && monthIndex === 1) ||
+      (startDate && startDate.month() === currentMonth.month()) ;
     let startWeek = null;
     return (
       <div
@@ -273,6 +276,7 @@ class CalendarMonth extends React.PureComponent {
         <table
           {...css(
             !verticalBorderSpacing && styles.CalendarMonth_table,
+            displayCaption && styles.OP_selected,
             verticalBorderSpacing && styles.CalendarMonth_verticalSpacing,
             verticalBorderSpacing && { borderSpacing: `0px ${verticalBorderSpacing}px` },
           )}
@@ -388,5 +392,7 @@ export default withStyles(({
     color: color.placeholderText,
     zIndex: zIndex + 2,
     textAlign: noflip('left'),
+  },
+  OP_selected: {
   },
 }), { pureComponent: typeof React.PureComponent !== 'undefined' })(CalendarMonth);

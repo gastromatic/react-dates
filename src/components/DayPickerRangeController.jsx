@@ -1220,6 +1220,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       showAllCaptions,
       missingWeeks,
       onFocusChange,
+      initialVisibleMonth,
     } = this.props;
 
     const {

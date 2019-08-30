@@ -975,6 +975,7 @@ class DayPicker extends React.PureComponent {
       errorMessage,
       showAllCaptions,
       hideWeekHeader,
+      startDate,
       endDate,
       missingWeeks,
       onFocusChange,
@@ -1161,6 +1162,7 @@ class DayPicker extends React.PureComponent {
                   isOutsideRange={isOutsideRange}
                   errorMessage={errorMessage}
                   showAllCaptions={showAllCaptions}
+                  startDate={startDate}
                   endDate={endDate}
                   missingWeeks={missingWeeks}
                   onFocusChange={onFocusChange}
