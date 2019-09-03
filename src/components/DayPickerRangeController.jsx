@@ -544,9 +544,8 @@ export default class DayPickerRangeController extends React.PureComponent {
     } = this.props;
 
     if (e) e.preventDefault();
-    const key = day ? `${day.year()}${day.isoWeek()}` : '';
 
-    if (this.isBlocked(day) || missingWeeks[key]) return;
+    if (this.isBlocked(day)) return;
 
     let { startDate, endDate } = this.props;
 
