@@ -1184,7 +1184,7 @@ class DayPicker extends React.PureComponent {
             </div>
           </div>
 
-          {(calendarInfoPositionBottom || calendarInfoPositionAfter) && calendarInfo && !calendarInfoSecond}
+          {(calendarInfoPositionBottom || calendarInfoPositionAfter) && !calendarInfoSecond && calendarInfo }
           {(calendarInfoPositionBottom || calendarInfoPositionAfter) && calendarInfoSecond}
         </OutsideClickHandler>
       </div>

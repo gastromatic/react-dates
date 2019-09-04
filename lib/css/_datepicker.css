@@ -356,11 +356,11 @@
   background: #ffecec;
   color: #ff6d6d
 }
-.CalendarDay__selectedMissed_span,
-.CalendarDay__selectedMissed_span:active,
-.CalendarDay__selectedMissed_span:hover {
-  background: #fff!important;
-  color: #ff6d6d!important
+.CalendarDay__missed_span,
+.CalendarDay__missed_span:active,
+.CalendarDay__missed_span:hover {
+  background: #fff;
+  color: #ff6d6d
 }
 .CalendarDay__selected,
 .CalendarDay__selected:active,
@@ -667,6 +667,9 @@
   position: relative;
   overflow: hidden;
   border-radius: 3px
+}
+.DayPicker_transitionContainer__auto {
+  height: auto!important
 }
 .DayPicker_transitionContainer__horizontal {
   -webkit-transition: height .2s ease-in-out;

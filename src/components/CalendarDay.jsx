@@ -140,7 +140,7 @@ class CalendarDay extends React.PureComponent {
           hoveredSpan && styles.CalendarDay__hovered_span,
           modifiers.has('selected-span') && styles.CalendarDay__selected_span,
           modifiers.has('invalid-span') && styles.CalendarDay__selectedInvalid_span,
-          modifiers.has('missed-span') && styles.CalendarDay__selectedMissed_span,
+          modifiers.has('missed-span') && styles.CalendarDay__missed_span,
           modifiers.has('selected-start') && styles.CalendarDay__selected_start,
           modifiers.has('selected-end') && styles.CalendarDay__selected_end,
           selected && !modifiers.has('selected-span') && styles.CalendarDay__selected,
@@ -275,18 +275,18 @@ export default withStyles(({ reactDates: { color, font } }) => ({
       color: '#FF6D6D',
     },
   },
-  CalendarDay__selectedMissed_span: {
-    background: '#FFF !important',
-    color: '#FF6D6D !important',
+  CalendarDay__missed_span: {
+    background: '#FFF',
+    color: '#FF6D6D',
 
     ':hover': {
-      background: '#FFF !important',
-      color: '#FF6D6D !important',
+      background: '#FFF',
+      color: '#FF6D6D',
     },
 
     ':active': {
-      background: '#FFF !important',
-      color: '#FF6D6D !important',
+      background: '#FFF',
+      color: '#FF6D6D',
     },
   },
 
