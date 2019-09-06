@@ -308,7 +308,7 @@ class CalendarMonth extends React.PureComponent {
                     currentMonth,
                   }))}
                   <td style={{ padding: '5px 5px 5px 10px', textAlign: 'left' }}>
-                    {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}<div className="divider"></div></div> : ''}
+                    {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}</div> : ''}
                     {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
                       ? <div>{month
                         .clone()
