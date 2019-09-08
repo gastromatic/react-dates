@@ -114,6 +114,7 @@ const propTypes = forbidExtraProps({
   isRTL: PropTypes.bool,
   missingWeeks: PropTypes.object,
   errorMessage: PropTypes.string,
+  onChangeModifiers: PropTypes.func,
 });
 
 const defaultProps = {
@@ -200,7 +201,7 @@ const getChooseAvailableDatePhrase = (phrases, focusedInput) => {
   return phrases.chooseAvailableDate;
 };
 
-export default class DayPickerRangeController extends React.PureComponent {
+export default class DayPickerRangeController extends React.Component {
   constructor(props) {
     super(props);
 
@@ -259,6 +260,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.onMultiplyScrollableMonths = this.onMultiplyScrollableMonths.bind(this);
     this.getFirstFocusableDay = this.getFirstFocusableDay.bind(this);
     this.isInMissingSpan = this.isInMissingSpan.bind(this);
+    this.updateModifiersParent = this.updateModifiersParent.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -336,7 +338,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       this.setState({
         currentMonth,
         visibleDays,
-      });
+      }, () => {this.updateModifiersParent()});
     }
 
     let modifiers = {};
@@ -512,7 +514,7 @@ export default class DayPickerRangeController extends React.PureComponent {
           ...visibleDays,
           ...modifiers,
         },
-      });
+      }, () => {this.updateModifiersParent()});
     }
 
     if (didFocusChange || phrases !== prevPhrases) {
@@ -743,7 +745,7 @@ export default class DayPickerRangeController extends React.PureComponent {
           ...visibleDays,
           ...modifiers,
         },
-      });
+      }, () => {this.updateModifiersParent()});
     }
   }
 
@@ -805,7 +807,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         ...visibleDays,
         ...modifiers,
       },
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   onPrevMonthClick() {
@@ -837,6 +839,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       },
     }, () => {
       onPrevMonthClick(newCurrentMonth.clone());
+      this.updateModifiersParent();
     });
   }
 
@@ -868,6 +871,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       },
     }, () => {
       onNextMonthClick(newCurrentMonth.clone());
+      this.updateModifiersParent();
     });
   }
 
@@ -884,7 +888,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.setState({
       currentMonth: newMonth.clone(),
       visibleDays: this.getModifiers(newVisibleDays),
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   onYearChange(newMonth) {
@@ -900,7 +904,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.setState({
       currentMonth: newMonth.clone(),
       visibleDays: this.getModifiers(newVisibleDays),
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   onMultiplyScrollableMonths() {
@@ -916,7 +920,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         ...visibleDays,
         ...this.getModifiers(newVisibleDays),
       },
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   getFirstFocusableDay(newMonth) {
@@ -1086,7 +1090,16 @@ export default class DayPickerRangeController extends React.PureComponent {
 
   isEndInvalidDate(day) {
     const { startDate, endDate } = this.props;
-    return isSameDay(day, endDate) && startDate && day.month() !== startDate.month();
+    return isSameDay(day, endDate) && startDate &&
+      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
+      startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
+      (day.clone().startOf('isoWeek').month() == day.month() ||
+        (
+          day.clone().startOf('isoWeek').month() != day.month() &&
+          day.clone().startOf('isoWeek').month() == day.clone().subtract(1,'month').month() &&
+          day.clone().startOf('isoWeek').month() > startDate.month()
+        )
+      );
   }
 
   isHovered(day) {
@@ -1118,7 +1131,9 @@ export default class DayPickerRangeController extends React.PureComponent {
 
   isInInvalidSpan(day) {
     const { startDate, endDate } = this.props;
-    return day.isBetween(startDate, endDate, 'days') && startDate && day.month() !== startDate.month() &&
+    return day.isBetween(startDate, endDate, 'days') && startDate &&
+      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
+      startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
       (day.clone().startOf('isoWeek').month() == day.month() ||
         (
           day.clone().startOf('isoWeek').month() != day.month() &&
@@ -1169,6 +1184,10 @@ export default class DayPickerRangeController extends React.PureComponent {
     const minNights = getMinNightsForHoverDate(hoverDate);
     const firstAvailableEndDate = hoverDate.clone().add(minNights, 'days');
     return isSameDay(day, firstAvailableEndDate);
+  }
+
+  updateModifiersParent() {
+    this.props.onChangeModifiers({...this.state.visibleDays});
   }
 
   render() {
