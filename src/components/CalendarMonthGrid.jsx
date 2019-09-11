@@ -154,7 +154,6 @@ class CalendarMonthGrid extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     const { initialMonth, numberOfMonths, orientation, monthIndex } = nextProps;
     const { months } = this.state;
-    console.log('componentWillReceiveProps', initialMonth.month(), this.props.initialMonth.month())
     const {
       initialMonth: prevInitialMonth,
       numberOfMonths: prevNumberOfMonths,
