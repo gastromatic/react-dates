@@ -27,6 +27,7 @@ const propTypes = forbidExtraProps({
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.string,
   currentMonth: momentPropTypes.momentObj,
+  monthIndex: nonNegativeInteger,
 
   // internationalization
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
@@ -47,6 +48,7 @@ const defaultProps = {
 
   // internationalization
   phrases: CalendarDayPhrases,
+  monthIndex: 1,
 };
 
 class CalendarDay extends React.PureComponent {
@@ -70,8 +72,8 @@ class CalendarDay extends React.PureComponent {
   }
 
   onDayClick(day, e) {
-    const { onDayClick } = this.props;
-    onDayClick(day, e);
+    const { onDayClick, monthIndex } = this.props;
+    onDayClick(day, e, monthIndex);
   }
 
   onDayMouseEnter(day, e) {

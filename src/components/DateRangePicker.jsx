@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { css, withStyles, withStylesPropTypes } from 'react-with-styles';
 import { Portal } from 'react-portal';
-import { forbidExtraProps } from 'airbnb-prop-types';
+import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
 import { addEventListener } from 'consolidated-events';
 import isTouchDevice from 'is-touch-device';
 import OutsideClickHandler from 'react-outside-click-handler';
@@ -54,6 +54,8 @@ const propTypes = forbidExtraProps({
   calendarInfoPositionSecond: PropTypes.string,
   emptyPeriodMessage: PropTypes.string,
   onChangeModifiers: PropTypes.func,
+  onMonthIndexChanged: PropTypes.func,
+  monthIndex: nonNegativeInteger,
 });
 
 const defaultProps = {
@@ -144,6 +146,7 @@ const defaultProps = {
   hideWeekHeader: false,
   showAllCaptions: false,
   emptyPeriodMessage: '',
+  monthIndex: 1,
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -154,6 +157,7 @@ class DateRangePicker extends React.PureComponent {
       isDateRangePickerInputFocused: false,
       isDayPickerFocused: false,
       showKeyboardShortcuts: false,
+      monthIndex: 1
     };
 
     this.isTouchDevice = false;
@@ -452,6 +456,8 @@ class DateRangePicker extends React.PureComponent {
       hideWeekHeader,
       showAllCaptions,
       onChangeModifiers,
+      onMonthIndexChanged,
+      monthIndex,
     } = this.props;
 
     const { dayPickerContainerStyles, isDayPickerFocused, showKeyboardShortcuts } = this.state;
@@ -543,6 +549,8 @@ class DateRangePicker extends React.PureComponent {
           hideWeekHeader={hideWeekHeader}
           showAllCaptions={showAllCaptions}
           onChangeModifiers={onChangeModifiers}
+          onMonthIndexChanged={onMonthIndexChanged}
+          monthIndex={monthIndex}
         />
 
         {withFullScreenPortal && (
