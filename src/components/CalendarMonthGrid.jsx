@@ -29,6 +29,7 @@ import {
   VERTICAL_ORIENTATION,
   VERTICAL_SCROLLABLE,
   DAY_SIZE,
+  MONTH_NAME_SPACER,
 } from '../constants';
 
 const propTypes = forbidExtraProps({
@@ -291,7 +292,7 @@ class CalendarMonthGrid extends React.PureComponent {
     const isVerticalScrollable = orientation === VERTICAL_SCROLLABLE;
     const isHorizontal = orientation === HORIZONTAL_ORIENTATION;
 
-    const calendarMonthWidth = getCalendarMonthWidth(daySize, horizontalMonthPadding) + 120;
+    const calendarMonthWidth = getCalendarMonthWidth(daySize, horizontalMonthPadding) + MONTH_NAME_SPACER;
 
     const width = isVertical || isVerticalScrollable
       ? calendarMonthWidth
