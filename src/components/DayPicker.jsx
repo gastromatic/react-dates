@@ -195,6 +195,7 @@ export const defaultProps = {
   phrases: DayPickerPhrases,
   dayAriaLabelFormat: undefined,
   monthIndex: 1,
+  caption: '',
 };
 
 class DayPicker extends React.PureComponent {

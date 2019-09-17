@@ -297,7 +297,7 @@ class CalendarMonth extends React.PureComponent {
             {weeks.map((week, i) => {
               let res = !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
                 [<CalendarWeek key={i}>
-                  <td style={{ padding: 5 }} className={week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].isoWeek()}`] ? 'missingWeek' : ''} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                  <td className={`${styles.CalendarMonth_weekNumber} ${week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].isoWeek()}`] ? 'missingWeek' : ''}`} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
                     {i === 0 && Number(week[0] && week[0].date()) > 7
                       ? ''
                       : `${week[0] && week[0].isoWeek()}`}
@@ -319,7 +319,7 @@ class CalendarMonth extends React.PureComponent {
                     currentMonth,
                     monthIndex,
                   }))}
-                  <td style={{ padding: '5px 5px 5px 10px', textAlign: 'left' }}>
+                  <td>
                     {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}</div> : ''}
                     {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
                       ? <div>{month
@@ -333,7 +333,7 @@ class CalendarMonth extends React.PureComponent {
                 </CalendarWeek>,
                   lastInvalidWeek === i && lastPeriodMonth && errorMessage ? (
                     <CalendarWeek key={`${i}_error`}>
-                      <td style={{ width: 10 }} />
+                      <td className={styles.CalendarMonth_invalidWeek} />
                       <td
                         colSpan={7}
                         {...css(
@@ -407,4 +407,14 @@ export default withStyles(({
   },
   OP_selected: {
   },
+  CalendarMonth_month: {
+    padding: '5px 5px 5px 10px',
+    textAlign: 'left'
+  },
+  CalendarMonth_weekNumber: {
+    padding: 5
+  },
+  CalendarMonth_invalidWeek: {
+    width: 10
+  }
 }), { pureComponent: typeof React.PureComponent !== 'undefined' })(CalendarMonth);
