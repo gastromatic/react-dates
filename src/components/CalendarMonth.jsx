@@ -119,6 +119,7 @@ class CalendarMonth extends React.PureComponent {
     this.setMonthTitleHeight = this.setMonthTitleHeight.bind(this);
     this.isBlocked = this.isBlocked.bind(this);
     this.setWeek = this.setWeek.bind(this);
+    this.getLastInvalidWeek = this.getLastInvalidWeek.bind(this);
   }
 
   componentDidMount() {
@@ -188,6 +189,23 @@ class CalendarMonth extends React.PureComponent {
     onFocusChange(START_DATE);
   }
 
+  getLastInvalidWeek() {
+    const { modifiers } = this.props;
+    const { weeks } = this.state;
+    let lastInvalidWeek = null;
+
+    weeks.forEach((week, i) => {
+      week.forEach((day) => {
+        if (day && modifiers && modifiers[toISODateString(day)]
+          && (modifiers[toISODateString(day)].has('invalid-span') || modifiers[toISODateString(day)].has('selected-invalid-end'))) {
+          lastInvalidWeek = i;
+        }
+      });
+    });
+
+    return lastInvalidWeek;
+  }
+
   render() {
     const {
       dayAriaLabelFormat,
@@ -226,16 +244,7 @@ class CalendarMonth extends React.PureComponent {
     const currentMonth = month.clone();
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
-    let lastInvalidWeek = null;
-
-    weeks.forEach((week, i) => {
-      week.forEach((day) => {
-        if (day && modifiers && modifiers[toISODateString(day)]
-          && (modifiers[toISODateString(day)].has('invalid-span') || modifiers[toISODateString(day)].has('selected-invalid-end'))) {
-          lastInvalidWeek = i;
-        }
-      });
-    });
+    let lastInvalidWeek = this.getLastInvalidWeek();
 
     const lastPeriodMonth = endDate && currentMonth && endDate.month() === currentMonth.month();
 
