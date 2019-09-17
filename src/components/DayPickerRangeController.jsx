@@ -1097,14 +1097,16 @@ export default class DayPickerRangeController extends React.Component {
 
   isEndInvalidDate(day) {
     const { startDate, endDate } = this.props;
+    const month = day.clone().startOf('isoWeek').month();
+    
     return isSameDay(day, endDate) && startDate &&
       (day.month() !== startDate.month() || (day.month() === startDate.month() &&
       startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
-      (day.clone().startOf('isoWeek').month() == day.month() ||
+      (month == day.month() ||
         (
-          day.clone().startOf('isoWeek').month() != day.month() &&
-          day.clone().startOf('isoWeek').month() == day.clone().subtract(1,'month').month() &&
-          day.clone().startOf('isoWeek').month() > startDate.month()
+          month != day.month() &&
+          month == day.clone().subtract(1,'month').month() &&
+          month > startDate.month()
         )
       );
   }
@@ -1138,14 +1140,16 @@ export default class DayPickerRangeController extends React.Component {
 
   isInInvalidSpan(day) {
     const { startDate, endDate } = this.props;
+    const month = day.clone().startOf('isoWeek').month();
+
     return day.isBetween(startDate, endDate, 'days') && startDate &&
       (day.month() !== startDate.month() || (day.month() === startDate.month() &&
       startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
-      (day.clone().startOf('isoWeek').month() == day.month() ||
+      (month == day.month() ||
         (
-          day.clone().startOf('isoWeek').month() != day.month() &&
-          day.clone().startOf('isoWeek').month() == day.clone().subtract(1,'month').month() &&
-          day.clone().startOf('isoWeek').month() > startDate.month()
+          month != day.month() &&
+          month == day.clone().subtract(1,'month').month() &&
+          month > startDate.month()
         )
       );
   }
