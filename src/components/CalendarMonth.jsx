@@ -71,6 +71,7 @@ const propTypes = forbidExtraProps({
   startDate: momentPropTypes.momentObj,
   missingWeeks: PropTypes.object,
   onFocusChange: PropTypes.func,
+  caption: PropTypes.string.isRequired,
 });
 
 const defaultProps = {
@@ -236,6 +237,7 @@ class CalendarMonth extends React.PureComponent {
       startDate,
       endDate,
       missingWeeks,
+      caption,
     } = this.props;
 
     const { weeks } = this.state;
@@ -251,7 +253,7 @@ class CalendarMonth extends React.PureComponent {
     const isFirstDay = currentMonth.clone().startOf('month').startOf('isoWeek').isSame(currentMonth.clone().startOf('month'));
     const firstWeekIndex = currentMonth.clone().startOf('month').startOf('isoWeek').isoWeek() + (isFirstDay ? 0 : 1);
     const lastWeekIndex = currentMonth.clone().endOf('month').endOf('isoWeek').isoWeek();
-    const activePeriod = `Optimierungszeitraum ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
+    const activePeriod = `${caption} ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
     const displayCaption = showAllCaptions || (!showAllCaptions && !startDate && monthIndex === 1) ||
       (startDate && startDate.month() === currentMonth.month()) ;
     let startWeek = null;

@@ -129,6 +129,7 @@ const propTypes = forbidExtraProps({
   missingWeeks: PropTypes.object,
   onFocusChange: PropTypes.func,
   monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
 });
 
 export const defaultProps = {
@@ -982,6 +983,7 @@ class DayPicker extends React.PureComponent {
       missingWeeks,
       onFocusChange,
       monthIndex,
+      caption,
     } = this.props;
 
     const {
@@ -1170,6 +1172,7 @@ class DayPicker extends React.PureComponent {
                   missingWeeks={missingWeeks}
                   onFocusChange={onFocusChange}
                   monthIndex={monthIndex}
+                  caption={caption}
                 />
                 {verticalScrollable && this.renderNavigation()}
               </div>

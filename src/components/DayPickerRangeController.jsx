@@ -117,6 +117,7 @@ const propTypes = forbidExtraProps({
   onChangeModifiers: PropTypes.func,
   onMonthIndexChanged: PropTypes.func,
   monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
 });
 
 const defaultProps = {
@@ -1246,6 +1247,7 @@ export default class DayPickerRangeController extends React.Component {
       onFocusChange,
       initialVisibleMonth,
       monthIndex,
+      caption,
     } = this.props;
 
     const {
@@ -1319,6 +1321,7 @@ export default class DayPickerRangeController extends React.Component {
         missingWeeks={missingWeeks}
         onFocusChange={onFocusChange}
         monthIndex={monthIndex}
+        caption={caption}
       />
     );
   }

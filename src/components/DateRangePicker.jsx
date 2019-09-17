@@ -56,6 +56,7 @@ const propTypes = forbidExtraProps({
   onChangeModifiers: PropTypes.func,
   onMonthIndexChanged: PropTypes.func,
   monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
 });
 
 const defaultProps = {
@@ -147,6 +148,7 @@ const defaultProps = {
   showAllCaptions: false,
   emptyPeriodMessage: '',
   monthIndex: 1,
+  caption: 'Optimierungszeitraum',
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -458,6 +460,7 @@ class DateRangePicker extends React.PureComponent {
       onChangeModifiers,
       onMonthIndexChanged,
       monthIndex,
+      caption,
     } = this.props;
 
     const { dayPickerContainerStyles, isDayPickerFocused, showKeyboardShortcuts } = this.state;
@@ -551,6 +554,7 @@ class DateRangePicker extends React.PureComponent {
           onChangeModifiers={onChangeModifiers}
           onMonthIndexChanged={onMonthIndexChanged}
           monthIndex={monthIndex}
+          caption={caption}
         />
 
         {withFullScreenPortal && (

@@ -76,6 +76,7 @@ const propTypes = forbidExtraProps({
   missingWeeks: PropTypes.object,
   onFocusChange: PropTypes.func,
   monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
 });
 
 const defaultProps = {
@@ -285,6 +286,7 @@ class CalendarMonthGrid extends React.PureComponent {
       endDate,
       missingWeeks,
       onFocusChange,
+      caption,
     } = this.props;
 
     const { months } = this.state;
@@ -387,6 +389,7 @@ class CalendarMonthGrid extends React.PureComponent {
                 startDate={startDate}
                 missingWeeks={missingWeeks}
                 onFocusChange={onFocusChange}
+                caption={caption}
               />
             </div>
           );
