@@ -550,7 +550,9 @@ export default class DayPickerRangeController extends React.Component {
       missingWeeks,
       onMonthIndexChanged,
     } = this.props;
-    onMonthIndexChanged(monthIndex);
+    if (focusedInput === START_DATE) {
+      onMonthIndexChanged(monthIndex);
+    }
 
     if (e) e.preventDefault();
 
@@ -584,6 +586,7 @@ export default class DayPickerRangeController extends React.Component {
           endDate = null;
         }
       }
+      endDate = null; // Reset endDate on selecting startDate
 
       onDatesChange({ startDate, endDate });
 
@@ -612,7 +615,7 @@ export default class DayPickerRangeController extends React.Component {
         startDate = day;
         endDate = null;
         onDatesChange({ startDate, endDate });
-        onFocusChange(START_DATE);
+        onFocusChange(END_DATE);
       } else {
         onDatesChange({ startDate, endDate });
         onFocusChange(START_DATE);
@@ -1098,7 +1101,7 @@ export default class DayPickerRangeController extends React.Component {
   isEndInvalidDate(day) {
     const { startDate, endDate } = this.props;
     const month = day.clone().startOf('isoWeek').month();
-    
+
     return isSameDay(day, endDate) && startDate &&
       (day.month() !== startDate.month() || (day.month() === startDate.month() &&
       startDate.clone().startOf('isoWeek').month() != startDate.month())) &&

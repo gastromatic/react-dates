@@ -117,7 +117,19 @@ const defaultProps = {
 
 function getMonths(initialMonth, numberOfMonths, withoutTransitionMonths, monthIndex) {
   let month = initialMonth.clone();
-  if (!withoutTransitionMonths) month = month.subtract(monthIndex, 'month');
+  const initialMonthIndex = month.month();
+  const startWeekMonth = month.clone().startOf('isoWeek').month();
+
+  const isInvalidPeriod = (initialMonthIndex !== monthIndex || (initialMonthIndex === monthIndex &&
+  startWeekMonth != monthIndex)) &&
+  (startWeekMonth == monthIndex ||
+    (
+      startWeekMonth != monthIndex &&
+      startWeekMonth == month.clone().subtract(1,'month').month() &&
+      startWeekMonth > monthIndex
+    )
+  );
+  if (!withoutTransitionMonths) month = month.subtract(monthIndex + (isInvalidPeriod ? 1 : 0), 'month');
 
   const months = [];
   for (let i = 0; i < (withoutTransitionMonths ? numberOfMonths : numberOfMonths + 2); i += 1) {
@@ -132,6 +144,7 @@ class CalendarMonthGrid extends React.PureComponent {
   constructor(props) {
     super(props);
     const withoutTransitionMonths = props.orientation === VERTICAL_SCROLLABLE;
+
     this.state = {
       months: getMonths(props.initialMonth, props.numberOfMonths, withoutTransitionMonths, props.monthIndex),
     };
