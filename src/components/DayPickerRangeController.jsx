@@ -140,6 +140,7 @@ const defaultProps = {
   isDayBlocked() {},
   isDayHighlighted() {},
   getMinNightsForHoverDate() {},
+  isInInvalidSpan() {},
 
   // DayPicker props
   renderMonthText: null,
@@ -388,6 +389,21 @@ export default class DayPickerRangeController extends React.Component {
           endDate,
           'selected-span',
         );
+
+      }
+      if (prevStartDate && prevEndDate) {
+        modifiers = this.deleteModifierFromRange(
+          modifiers,
+          prevStartDate,
+          prevEndDate.clone().add(1, 'day'),
+          'invalid-span',
+        );
+        modifiers = this.deleteModifierFromRange(
+          modifiers,
+          prevStartDate,
+          prevEndDate.clone().add(1, 'day'),
+          'selected-invalid-end',
+        );
       }
     }
 
@@ -452,6 +468,17 @@ export default class DayPickerRangeController extends React.Component {
             } else {
               modifiers = this.deleteModifier(modifiers, momentObj, 'highlighted-calendar');
             }
+          }
+
+          if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'invalid-span');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'invalid-span');
+          }
+          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
           }
         });
       });
@@ -1098,8 +1125,10 @@ export default class DayPickerRangeController extends React.Component {
     return isSameDay(day, endDate);
   }
 
-  isEndInvalidDate(day) {
-    const { startDate, endDate } = this.props;
+  isEndInvalidDate(day, initialStartDate = null, initialEndDate = null) {
+    const { currentStartDate, currentEndDate } = this.props;
+    const startDate = initialStartDate || currentStartDate;
+    const endDate = initialEndDate || currentEndDate;
     const month = day.clone().startOf('isoWeek').month();
 
     return isSameDay(day, endDate) && startDate &&
@@ -1141,8 +1170,10 @@ export default class DayPickerRangeController extends React.Component {
     return day.isBetween(startDate, endDate, 'days');
   }
 
-  isInInvalidSpan(day) {
-    const { startDate, endDate } = this.props;
+  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null) {
+    const { currentStartDate, currentEndDate } = this.props;
+    const startDate = initialStartDate || currentStartDate;
+    const endDate = initialEndDate || currentEndDate;
     const month = day.clone().startOf('isoWeek').month();
 
     return day.isBetween(startDate, endDate, 'days') && startDate &&

@@ -248,7 +248,7 @@ function DateRangePickerInput({
         </div>
       }
 
-      {isStartDateFocused && children}
+      {children}
 
       <DateInput
         id={endDateId}
@@ -273,7 +273,6 @@ function DateRangePickerInput({
         regular={regular}
       />
 
-      {isEndDateFocused && children}
 
       {showClearDates && (
         <button
