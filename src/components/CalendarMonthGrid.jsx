@@ -22,6 +22,7 @@ import isNextMonth from '../utils/isNextMonth';
 import ModifiersShape from '../shapes/ModifiersShape';
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
 import DayOfWeekShape from '../shapes/DayOfWeekShape';
+import getCalendarMonthWeeks from '../utils/getCalendarMonthWeeks';
 
 
 import {
@@ -313,8 +314,23 @@ class CalendarMonthGrid extends React.PureComponent {
       ? calendarMonthWidth
       : (numberOfMonths + 2) * calendarMonthWidth;
 
+    const weeks = getCalendarMonthWeeks(
+      months[translationValue > 0 ? 0 : 1],
+      enableOutsideDays,
+      firstDayOfWeek == null ? moment.localeData().firstDayOfWeek() : firstDayOfWeek
+    );
+
+    let weekNumber = 0;
+    weeks.forEach((week, i) => {
+      if ((i == 0 && Number(week[0] && week[0].date()) === 1) || i > 0) {
+        weekNumber++
+      }
+    });
+
+    const delta = 33;
+    const tr = translationValue > 0 ? translationValue : (translationValue < 0 ? translationValue + delta : 0);
     const transformType = (isVertical || isVerticalScrollable) ? 'translateY' : 'translateX';
-    const transformValue = `${transformType}(${translationValue}px)`;
+    const transformValue = `${transformType}(${tr}px)`;
 
     return (
       <div
@@ -340,6 +356,19 @@ class CalendarMonthGrid extends React.PureComponent {
           const hideForAnimation = i === 0 && !isVisible;
           const showForAnimation = i === 0 && isAnimating && isVisible;
           const monthString = toISOMonthString(month);
+          const weeks = getCalendarMonthWeeks(
+              month,
+              enableOutsideDays,
+              firstDayOfWeek == null ? moment.localeData().firstDayOfWeek() : firstDayOfWeek
+          );
+
+          let weekNumber = 0;
+          weeks.forEach((week, i) => {
+            if ((i == 0 && Number(week[0] && week[0].date()) === 1) || i > 0) {
+              weekNumber++
+            }
+          });
+          const topMargin =  weekNumber * 30 + 30 || 0;
 
           return (
             <div
@@ -347,6 +376,7 @@ class CalendarMonthGrid extends React.PureComponent {
               {...css(
                 isHorizontal && styles.CalendarMonthGrid_month__horizontal,
                 hideForAnimation && styles.CalendarMonthGrid_month__hideForAnimation,
+                hideForAnimation && {marginTop: -1 * topMargin},
                 showForAnimation
                   && !isVertical
                   && !isRTL && {

@@ -140,7 +140,6 @@ const defaultProps = {
   isDayBlocked() {},
   isDayHighlighted() {},
   getMinNightsForHoverDate() {},
-  isInInvalidSpan() {},
 
   // DayPicker props
   renderMonthText: null,

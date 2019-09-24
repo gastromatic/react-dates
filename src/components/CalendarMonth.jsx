@@ -288,8 +288,8 @@ class CalendarMonth extends React.PureComponent {
               onYearSelect,
               isVisible,
             })
-          ) : displayCaption && (
-            <div {...css(styles.DayPicker_activePeriod)} aria-hidden="true" role="presentation">{activePeriod}</div>
+          ) : (
+            <div {...css(styles.DayPicker_activePeriod)} style={{opacity: displayCaption ? 1 : 0}} aria-hidden="true" role="presentation">{activePeriod}</div>
           )}
         </div>
 
@@ -328,7 +328,7 @@ class CalendarMonth extends React.PureComponent {
                     currentMonth,
                     monthIndex,
                   }))}
-                  <td>
+                  <td className={styles.CalendarMonth_month}>
                     {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}</div> : ''}
                     {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
                       ? <div>{month
