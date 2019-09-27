@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from 'airbnb-prop-types';
-import { css, withStyles, withStylesPropTypes } from 'react-with-styles';
+import { withStyles, withStylesPropTypes } from 'react-with-styles';
 
 import moment from 'moment';
 import throttle from 'lodash/throttle';
@@ -28,6 +28,7 @@ import getActiveElement from '../utils/getActiveElement';
 import isDayVisible from '../utils/isDayVisible';
 
 import ModifiersShape from '../shapes/ModifiersShape';
+import NavPositionShape from '../shapes/NavPositionShape';
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
 import DayOfWeekShape from '../shapes/DayOfWeekShape';
 import CalendarInfoPositionShape from '../shapes/CalendarInfoPositionShape';
@@ -42,6 +43,8 @@ import {
   INFO_POSITION_BEFORE,
   INFO_POSITION_AFTER,
   MODIFIER_KEY_NAMES,
+  NAV_POSITION_TOP,
+  NAV_POSITION_BOTTOM,
 } from '../constants';
 
 const MONTH_PADDING = 23;
@@ -76,10 +79,13 @@ const propTypes = forbidExtraProps({
   verticalBorderSpacing: nonNegativeInteger,
   horizontalMonthPadding: nonNegativeInteger,
   renderKeyboardShortcutsButton: PropTypes.func,
+  renderKeyboardShortcutsPanel: PropTypes.func,
 
   // navigation props
+  dayPickerNavigationInlineStyles: PropTypes.object,
   disablePrev: PropTypes.bool,
   disableNext: PropTypes.bool,
+  navPosition: NavPositionShape,
   navPrev: PropTypes.node,
   navNext: PropTypes.node,
   noNavButtons: PropTypes.bool,
@@ -156,10 +162,13 @@ export const defaultProps = {
   verticalBorderSpacing: undefined,
   horizontalMonthPadding: 13,
   renderKeyboardShortcutsButton: undefined,
+  renderKeyboardShortcutsPanel: undefined,
 
   // navigation props
+  dayPickerNavigationInlineStyles: null,
   disablePrev: false,
   disableNext: false,
+  navPosition: NAV_POSITION_TOP,
   navPrev: null,
   navNext: null,
   noNavButtons: false,
@@ -172,6 +181,7 @@ export const defaultProps = {
   // month props
   renderMonthText: null,
   renderMonthElement: null,
+  renderWeekHeaderElement: null,
 
   // day props
   modifiers: {},
@@ -597,6 +607,19 @@ class DayPicker extends React.PureComponent {
     return firstDayOfWeek;
   }
 
+  getWeekHeaders() {
+    const { weekDayFormat } = this.props;
+    const { currentMonth } = this.state;
+    const firstDayOfWeek = this.getFirstDayOfWeek();
+
+    const weekHeaders = [];
+    for (let i = 0; i < 7; i += 1) {
+      weekHeaders.push(currentMonth.clone().day((i + firstDayOfWeek) % 7).format(weekDayFormat));
+    }
+
+    return weekHeaders;
+  }
+
   getFirstVisibleIndex() {
     const { orientation } = this.props;
     const { monthTransition } = this.state;
@@ -841,8 +864,10 @@ class DayPicker extends React.PureComponent {
 
   renderNavigation(position = 'bottom', type = 'both') {
     const {
+      dayPickerNavigationInlineStyles,
       disablePrev,
       disableNext,
+      navPosition,
       navPrev,
       navNext,
       noNavButtons,
@@ -861,8 +886,10 @@ class DayPicker extends React.PureComponent {
       <DayPickerNavigation
         disablePrev={disablePrev}
         disableNext={disableNext}
+        inlineStyles={dayPickerNavigationInlineStyles}
         onPrevMonthClick={this.onPrevMonthClick}
         onNextMonthClick={onNextMonthClick}
+        navPosition={navPosition}
         navPrev={navPrev}
         navNext={navNext}
         orientation={orientation}
@@ -876,10 +903,19 @@ class DayPicker extends React.PureComponent {
 
   renderWeekHeader(index) {
     const {
-      daySize, horizontalMonthPadding, orientation, weekDayFormat, styles,
+      weekDayFormat,
+      daySize,
+      horizontalMonthPadding,
+      orientation,
+      renderWeekHeaderElement,
+      styles,
+      css,
     } = this.props;
+
     const { calendarMonthWidth } = this.state;
+
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
+
     const horizontalStyle = {
       left: index * calendarMonthWidth,
     };
@@ -939,6 +975,7 @@ class DayPicker extends React.PureComponent {
     } = this.state;
 
     const {
+      css,
       enableOutsideDays,
       numberOfMonths,
       orientation,
@@ -955,6 +992,7 @@ class DayPicker extends React.PureComponent {
       renderCalendarInfoSecond,
       renderMonthElement,
       renderKeyboardShortcutsButton,
+      renderKeyboardShortcutsPanel,
       calendarInfoPosition,
       calendarInfoPositionSecond,
       hideKeyboardShortcutsPanel,
@@ -985,6 +1023,7 @@ class DayPicker extends React.PureComponent {
       onFocusChange,
       monthIndex,
       caption,
+      navPosition,
     } = this.props;
 
     const {
@@ -1070,8 +1109,6 @@ class DayPicker extends React.PureComponent {
 
     return (
       <div
-        role="application"
-        aria-label={phrases.calendarLabel}
         {...css(
           styles.DayPicker,
           isHorizontal && styles.DayPicker__horizontal,
@@ -1117,10 +1154,12 @@ class DayPicker extends React.PureComponent {
               }}
               role="region"
               tabIndex={-1}
+              role="application"
+              aria-roledescription={phrases.roleDescription}
+              aria-label={phrases.calendarLabel}
             >
               {!verticalScrollable && this.renderNavigation('top', 'prev')}
               {!verticalScrollable && this.renderNavigation('bottom', 'next')}
-
               <div
                 {...css(
                   styles.DayPicker_transitionContainer,
@@ -1178,6 +1217,10 @@ class DayPicker extends React.PureComponent {
                 {verticalScrollable && this.renderNavigation()}
               </div>
 
+              {!verticalScrollable
+                && navPosition === NAV_POSITION_BOTTOM
+                && this.renderNavigation()}
+
               {!isTouch && !hideKeyboardShortcutsPanel && (
                 <DayPickerKeyboardShortcuts
                   block={this.isVertical() && !withPortal}
@@ -1187,6 +1230,7 @@ class DayPicker extends React.PureComponent {
                   closeKeyboardShortcutsPanel={this.closeKeyboardShortcutsPanel}
                   phrases={phrases}
                   renderKeyboardShortcutsButton={renderKeyboardShortcutsButton}
+                  renderKeyboardShortcutsPanel={renderKeyboardShortcutsPanel}
                 />
               )}
             </div>

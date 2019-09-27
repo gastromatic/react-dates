@@ -131,4 +131,11 @@ storiesOf('DateRangePicker (DRP)', module)
         <div>Bottom Panel</div>
       )}
     />
+  )))
+  .add('with navigation blocked (minDate and maxDate)', withInfo()(() => (
+    <DateRangePickerWrapper
+      minDate={moment().subtract(2, 'months').startOf('month')}
+      maxDate={moment().add(2, 'months').endOf('month')}
+      numberOfMonths={2}
+    />
   )));
