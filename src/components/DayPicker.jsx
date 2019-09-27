@@ -136,6 +136,7 @@ const propTypes = forbidExtraProps({
   onFocusChange: PropTypes.func,
   monthIndex: nonNegativeInteger,
   caption: PropTypes.string.isRequired,
+  renderWeekHeaderElement: PropTypes.func,
 });
 
 export const defaultProps = {
