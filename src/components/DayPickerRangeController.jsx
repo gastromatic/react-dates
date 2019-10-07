@@ -368,10 +368,26 @@ export default class DayPickerRangeController extends React.Component {
         modifiers = this.deleteModifierFromRange(modifiers, startSpan, endSpan, 'after-hovered-start');
       }
     }
-
     if (didEndDateChange) {
       modifiers = this.deleteModifier(modifiers, prevEndDate, 'selected-end');
       modifiers = this.addModifier(modifiers, endDate, 'selected-end');
+
+      values(visibleDays).forEach((days) => {
+        Object.keys(days).forEach((day) => {
+          const momentObj = getPooledMoment(day);
+          if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'invalid-span');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'invalid-span');
+          }
+
+          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
+          }
+        })
+      })
     }
 
     if (didStartDateChange || didEndDateChange) {

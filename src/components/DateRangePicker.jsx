@@ -58,6 +58,8 @@ const propTypes = forbidExtraProps({
   onMonthIndexChanged: PropTypes.func,
   monthIndex: nonNegativeInteger,
   caption: PropTypes.string.isRequired,
+  startDateId: PropTypes.string,
+  endDateId: PropTypes.string,
 });
 
 const defaultProps = {
@@ -155,6 +157,8 @@ const defaultProps = {
   emptyPeriodMessage: '',
   monthIndex: 1,
   caption: 'Optimierungszeitraum',
+  startDateId: START_DATE,
+  endDateId: END_DATE,
 };
 
 class DateRangePicker extends React.PureComponent {
