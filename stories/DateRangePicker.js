@@ -115,7 +115,21 @@ storiesOf('DateRangePicker (DRP)', module)
   .add('vertical with custom height', withInfo()(() => (
     <DateRangePickerWrapper
       orientation={VERTICAL_ORIENTATION}
-      verticalHeight={568}
+      verticalHeight={360}
+      verticalSpacing={0}
+      keepOpenOnDateSelect
+      autoFocus
+      embedded
+      noBorderPicker
+      hideWeekHeader
+      calendarInfoPosition="top"
+      calendarInfoPositionSecond="bottom"
+      renderCalendarInfo={() => (
+        <div>Top Panel</div>
+      )}
+      renderCalendarInfoSecond={() => (
+        <div>Bottom Panel</div>
+      )}
     />
   )))
   .add('with navigation blocked (minDate and maxDate)', withInfo()(() => (

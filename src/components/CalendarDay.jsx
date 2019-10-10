@@ -26,6 +26,8 @@ const propTypes = forbidExtraProps({
   onDayMouseLeave: PropTypes.func,
   renderDayContents: PropTypes.func,
   ariaLabelFormat: PropTypes.string,
+  currentMonth: momentPropTypes.momentObj,
+  monthIndex: nonNegativeInteger,
 
   // internationalization
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
@@ -46,6 +48,7 @@ const defaultProps = {
 
   // internationalization
   phrases: CalendarDayPhrases,
+  monthIndex: 1,
 };
 
 class CalendarDay extends React.PureComponent {
@@ -69,8 +72,8 @@ class CalendarDay extends React.PureComponent {
   }
 
   onDayClick(day, e) {
-    const { onDayClick } = this.props;
-    onDayClick(day, e);
+    const { onDayClick, monthIndex } = this.props;
+    onDayClick(day, e, monthIndex);
   }
 
   onDayMouseEnter(day, e) {
@@ -139,9 +142,12 @@ class CalendarDay extends React.PureComponent {
           modifiers.has('blocked-calendar') && styles.CalendarDay__blocked_calendar,
           hoveredSpan && styles.CalendarDay__hovered_span,
           modifiers.has('selected-span') && styles.CalendarDay__selected_span,
+          modifiers.has('invalid-span') && styles.CalendarDay__selectedInvalid_span,
+          modifiers.has('missed-span') && styles.CalendarDay__missed_span,
           modifiers.has('selected-start') && styles.CalendarDay__selected_start,
           modifiers.has('selected-end') && styles.CalendarDay__selected_end,
           selected && !modifiers.has('selected-span') && styles.CalendarDay__selected,
+          modifiers.has('selected-invalid-end') && styles.CalendarDay__selectedInvalid_end,
           isOutsideRange && styles.CalendarDay__blocked_out_of_range,
           daySizeStyles,
         )}
@@ -258,6 +264,34 @@ export default withStyles(({ reactDates: { color, font } }) => ({
       color: color.selectedSpan.color_active,
     },
   },
+  CalendarDay__selectedInvalid_span: {
+    background: '#FFF2F2',
+    color: '#FF6D6D',
+
+    ':hover': {
+      background: '#FFECEC',
+      color: '#FF6D6D',
+    },
+
+    ':active': {
+      background: '#FFECEC',
+      color: '#FF6D6D',
+    },
+  },
+  CalendarDay__missed_span: {
+    background: '#FFF',
+    color: '#FF6D6D',
+
+    ':hover': {
+      background: '#FFF',
+      color: '#FF6D6D',
+    },
+
+    ':active': {
+      background: '#FFF',
+      color: '#FF6D6D',
+    },
+  },
 
   CalendarDay__selected: {
     background: color.selected.backgroundColor,
@@ -343,6 +377,11 @@ export default withStyles(({ reactDates: { color, font } }) => ({
 
   CalendarDay__selected_start: {},
   CalendarDay__selected_end: {},
+  CalendarDay__selectedInvalid_end: {
+    background: '#FFECEC !important',
+    border: `1px double ${color.selectedSpan.borderColor}`,
+    color: '#FF6D6D !important',
+  },
   CalendarDay__today: {},
   CalendarDay__firstDayOfWeek: {},
   CalendarDay__lastDayOfWeek: {},

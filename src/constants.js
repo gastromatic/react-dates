@@ -26,7 +26,7 @@ export const ANCHOR_RIGHT = 'right';
 export const OPEN_DOWN = 'down';
 export const OPEN_UP = 'up';
 
-export const DAY_SIZE = 39;
+export const DAY_SIZE = 33;
 export const BLOCKED_MODIFIER = 'blocked';
 export const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 
@@ -35,3 +35,5 @@ export const FANG_HEIGHT_PX = 10;
 export const DEFAULT_VERTICAL_SPACING = 22;
 
 export const MODIFIER_KEY_NAMES = new Set(['Shift', 'Control', 'Alt', 'Meta']);
+
+export const MONTH_NAME_SPACER = 120

@@ -36,6 +36,7 @@ import {
   HORIZONTAL_ORIENTATION,
   VERTICAL_SCROLLABLE,
   DAY_SIZE,
+  INFO_POSITION_TOP,
   INFO_POSITION_BOTTOM,
   NAV_POSITION_TOP,
 } from '../constants';
@@ -76,6 +77,9 @@ const propTypes = forbidExtraProps({
   hideKeyboardShortcutsPanel: PropTypes.bool,
   daySize: nonNegativeInteger,
   noBorder: PropTypes.bool,
+  noBorderPicker: PropTypes.bool,
+  hideWeekHeader: PropTypes.bool,
+  showAllCaptions: PropTypes.bool,
   verticalBorderSpacing: nonNegativeInteger,
   horizontalMonthPadding: nonNegativeInteger,
 
@@ -91,9 +95,11 @@ const propTypes = forbidExtraProps({
   renderCalendarDay: PropTypes.func,
   renderDayContents: PropTypes.func,
   renderCalendarInfo: PropTypes.func,
+  renderCalendarInfoSecond: PropTypes.func,
   renderKeyboardShortcutsButton: PropTypes.func,
   renderKeyboardShortcutsPanel: PropTypes.func,
   calendarInfoPosition: CalendarInfoPositionShape,
+  calendarInfoPositionSecond: CalendarInfoPositionShape,
   firstDayOfWeek: DayOfWeekShape,
   verticalHeight: nonNegativeInteger,
   transitionDuration: nonNegativeInteger,
@@ -112,11 +118,17 @@ const propTypes = forbidExtraProps({
   dayAriaLabelFormat: PropTypes.string,
 
   isRTL: PropTypes.bool,
+  missingWeeks: PropTypes.object,
+  errorMessage: PropTypes.string,
+  onChangeModifiers: PropTypes.func,
+  onMonthIndexChanged: PropTypes.func,
+  monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
 });
 
 const defaultProps = {
-  startDate: undefined, // TODO: use null
-  endDate: undefined, // TODO: use null
+  startDate: moment(), // TODO: use null
+  endDate: moment(), // TODO: use null
   minDate: null,
   maxDate: null,
   onDatesChange() {},
@@ -159,13 +171,18 @@ const defaultProps = {
   renderCalendarDay: undefined,
   renderDayContents: null,
   renderCalendarInfo: null,
+  renderCalendarInfoSecond: null,
   renderMonthElement: null,
   renderKeyboardShortcutsButton: undefined,
+  calendarInfoPosition: INFO_POSITION_TOP,
+  calendarInfoPositionSecond: INFO_POSITION_BOTTOM,
   renderKeyboardShortcutsPanel: undefined,
-  calendarInfoPosition: INFO_POSITION_BOTTOM,
   firstDayOfWeek: null,
   verticalHeight: null,
   noBorder: false,
+  noBorderPicker: false,
+  hideWeekHeader: false,
+  showAllCaptions: false,
   transitionDuration: undefined,
   verticalBorderSpacing: undefined,
   horizontalMonthPadding: 13,
@@ -184,6 +201,8 @@ const defaultProps = {
   dayAriaLabelFormat: undefined,
 
   isRTL: false,
+  missingWeeks: [],
+  monthIndex: 1,
 };
 
 const getChooseAvailableDatePhrase = (phrases, focusedInput) => {
@@ -196,30 +215,33 @@ const getChooseAvailableDatePhrase = (phrases, focusedInput) => {
   return phrases.chooseAvailableDate;
 };
 
-export default class DayPickerRangeController extends React.PureComponent {
+export default class DayPickerRangeController extends React.Component {
   constructor(props) {
     super(props);
 
     this.isTouchDevice = isTouchDevice();
     this.today = moment();
     this.modifiers = {
-      today: (day) => this.isToday(day),
-      blocked: (day) => this.isBlocked(day),
-      'blocked-calendar': (day) => props.isDayBlocked(day),
-      'blocked-out-of-range': (day) => props.isOutsideRange(day),
-      'highlighted-calendar': (day) => props.isDayHighlighted(day),
-      valid: (day) => !this.isBlocked(day),
-      'selected-start': (day) => this.isStartDate(day),
-      'selected-end': (day) => this.isEndDate(day),
-      'blocked-minimum-nights': (day) => this.doesNotMeetMinimumNights(day),
-      'selected-span': (day) => this.isInSelectedSpan(day),
-      'last-in-range': (day) => this.isLastInRange(day),
-      hovered: (day) => this.isHovered(day),
-      'hovered-span': (day) => this.isInHoveredSpan(day),
-      'hovered-offset': (day) => this.isInHoveredSpan(day),
-      'after-hovered-start': (day) => this.isDayAfterHoveredStartDate(day),
-      'first-day-of-week': (day) => this.isFirstDayOfWeek(day),
-      'last-day-of-week': (day) => this.isLastDayOfWeek(day),
+      today: day => this.isToday(day),
+      blocked: day => this.isBlocked(day),
+      'blocked-calendar': day => props.isDayBlocked(day),
+      'blocked-out-of-range': day => props.isOutsideRange(day),
+      'highlighted-calendar': day => props.isDayHighlighted(day),
+      valid: day => !this.isBlocked(day),
+      'selected-start': day => this.isStartDate(day),
+      'selected-end': day => this.isEndDate(day),
+      'selected-invalid-end': day => this.isEndInvalidDate(day),
+      'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
+      'selected-span': day => this.isInSelectedSpan(day),
+      'invalid-span': day => this.isInInvalidSpan(day),
+      'missed-span': day => this.isInMissingSpan(day),
+      'last-in-range': day => this.isLastInRange(day),
+      hovered: day => this.isHovered(day),
+      'hovered-span': day => this.isInHoveredSpan(day),
+      'hovered-offset': day => this.isInHoveredSpan(day),
+      'after-hovered-start': day => this.isDayAfterHoveredStartDate(day),
+      'first-day-of-week': day => this.isFirstDayOfWeek(day),
+      'last-day-of-week': day => this.isLastDayOfWeek(day),
       'hovered-start-first-possible-end': (day, hoverDate) => this.isFirstPossibleEndDateForHoveredStartDate(day, hoverDate),
       'hovered-start-blocked-minimum-nights': (day, hoverDate) => this.doesNotMeetMinNightsForHoveredStartDate(day, hoverDate),
     };
@@ -232,6 +254,7 @@ export default class DayPickerRangeController extends React.PureComponent {
 
     this.state = {
       hoverDate: null,
+      monthIndex: props.monthIndex,
       currentMonth,
       phrases: {
         ...props.phrases,
@@ -251,6 +274,8 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.onYearChange = this.onYearChange.bind(this);
     this.onMultiplyScrollableMonths = this.onMultiplyScrollableMonths.bind(this);
     this.getFirstFocusableDay = this.getFirstFocusableDay.bind(this);
+    this.isInMissingSpan = this.isInMissingSpan.bind(this);
+    this.updateModifiersParent = this.updateModifiersParent.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -328,7 +353,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       this.setState({
         currentMonth,
         visibleDays,
-      });
+      }, () => {this.updateModifiersParent()});
     }
 
     let modifiers = {};
@@ -343,10 +368,26 @@ export default class DayPickerRangeController extends React.PureComponent {
         modifiers = this.deleteModifierFromRange(modifiers, startSpan, endSpan, 'after-hovered-start');
       }
     }
-
     if (didEndDateChange) {
       modifiers = this.deleteModifier(modifiers, prevEndDate, 'selected-end');
       modifiers = this.addModifier(modifiers, endDate, 'selected-end');
+
+      values(visibleDays).forEach((days) => {
+        Object.keys(days).forEach((day) => {
+          const momentObj = getPooledMoment(day);
+          if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'invalid-span');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'invalid-span');
+          }
+
+          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
+          }
+        })
+      })
     }
 
     if (didStartDateChange || didEndDateChange) {
@@ -372,6 +413,21 @@ export default class DayPickerRangeController extends React.PureComponent {
           startDate.clone().add(1, 'day'),
           endDate,
           'selected-span',
+        );
+
+      }
+      if (prevStartDate && prevEndDate) {
+        modifiers = this.deleteModifierFromRange(
+          modifiers,
+          prevStartDate,
+          prevEndDate.clone().add(1, 'day'),
+          'invalid-span',
+        );
+        modifiers = this.deleteModifierFromRange(
+          modifiers,
+          prevStartDate,
+          prevEndDate.clone().add(1, 'day'),
+          'selected-invalid-end',
         );
       }
     }
@@ -437,6 +493,17 @@ export default class DayPickerRangeController extends React.PureComponent {
             } else {
               modifiers = this.deleteModifier(modifiers, momentObj, 'highlighted-calendar');
             }
+          }
+
+          if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'invalid-span');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'invalid-span');
+          }
+          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
+            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
+          } else {
+            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
           }
         });
       });
@@ -504,7 +571,7 @@ export default class DayPickerRangeController extends React.PureComponent {
           ...visibleDays,
           ...modifiers,
         },
-      });
+      }, () => {this.updateModifiersParent()});
     }
 
     if (didFocusChange || phrases !== prevPhrases) {
@@ -520,7 +587,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     }
   }
 
-  onDayClick(day, e) {
+  onDayClick(day, e, monthIndex) {
     const {
       keepOpenOnDateSelect,
       minimumNights,
@@ -532,9 +599,15 @@ export default class DayPickerRangeController extends React.PureComponent {
       startDateOffset,
       endDateOffset,
       disabled,
+      missingWeeks,
+      onMonthIndexChanged,
     } = this.props;
+    if (focusedInput === START_DATE) {
+      onMonthIndexChanged(monthIndex);
+    }
 
     if (e) e.preventDefault();
+
     if (this.isBlocked(day)) return;
 
     let { startDate, endDate } = this.props;
@@ -565,6 +638,7 @@ export default class DayPickerRangeController extends React.PureComponent {
           endDate = null;
         }
       }
+      endDate = null; // Reset endDate on selecting startDate
 
       onDatesChange({ startDate, endDate });
 
@@ -584,6 +658,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       } else if (isInclusivelyAfterDay(day, firstAllowedEndDate)) {
         endDate = day;
         onDatesChange({ startDate, endDate });
+        onFocusChange(START_DATE);
         if (!keepOpenOnDateSelect) {
           onFocusChange(null);
           onClose({ startDate, endDate });
@@ -592,8 +667,10 @@ export default class DayPickerRangeController extends React.PureComponent {
         startDate = day;
         endDate = null;
         onDatesChange({ startDate, endDate });
+        onFocusChange(END_DATE);
       } else {
         onDatesChange({ startDate, endDate });
+        onFocusChange(START_DATE);
       }
     } else {
       onDatesChange({ startDate, endDate });
@@ -730,7 +807,7 @@ export default class DayPickerRangeController extends React.PureComponent {
           ...visibleDays,
           ...modifiers,
         },
-      });
+      }, () => {this.updateModifiersParent()});
     }
   }
 
@@ -792,7 +869,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         ...visibleDays,
         ...modifiers,
       },
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   onPrevMonthClick() {
@@ -824,6 +901,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       },
     }, () => {
       onPrevMonthClick(newCurrentMonth.clone());
+      this.updateModifiersParent();
     });
   }
 
@@ -855,6 +933,7 @@ export default class DayPickerRangeController extends React.PureComponent {
       },
     }, () => {
       onNextMonthClick(newCurrentMonth.clone());
+      this.updateModifiersParent();
     });
   }
 
@@ -871,7 +950,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.setState({
       currentMonth: newMonth.clone(),
       visibleDays: this.getModifiers(newVisibleDays),
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   onYearChange(newMonth) {
@@ -887,7 +966,7 @@ export default class DayPickerRangeController extends React.PureComponent {
     this.setState({
       currentMonth: newMonth.clone(),
       visibleDays: this.getModifiers(newVisibleDays),
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   onMultiplyScrollableMonths() {
@@ -903,7 +982,7 @@ export default class DayPickerRangeController extends React.PureComponent {
         ...visibleDays,
         ...this.getModifiers(newVisibleDays),
       },
-    });
+    }, () => {this.updateModifiersParent()});
   }
 
   getFirstFocusableDay(newMonth) {
@@ -1071,6 +1150,24 @@ export default class DayPickerRangeController extends React.PureComponent {
     return isSameDay(day, endDate);
   }
 
+  isEndInvalidDate(day, initialStartDate = null, initialEndDate = null) {
+    const { currentStartDate, currentEndDate } = this.props;
+    const startDate = initialStartDate || currentStartDate;
+    const endDate = initialEndDate || currentEndDate;
+    const month = day.clone().startOf('isoWeek').month();
+
+    return isSameDay(day, endDate) && startDate &&
+      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
+      startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
+      (month == day.month() ||
+        (
+          month != day.month() &&
+          month == day.clone().subtract(1,'month').month() &&
+          month > startDate.month()
+        )
+      );
+  }
+
   isHovered(day) {
     const { hoverDate } = this.state || {};
     const { focusedInput } = this.props;
@@ -1096,6 +1193,34 @@ export default class DayPickerRangeController extends React.PureComponent {
   isInSelectedSpan(day) {
     const { startDate, endDate } = this.props;
     return day.isBetween(startDate, endDate, 'days');
+  }
+
+  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null) {
+    const { currentStartDate, currentEndDate } = this.props;
+    const startDate = initialStartDate || currentStartDate;
+    const endDate = initialEndDate || currentEndDate;
+    const month = day.clone().startOf('isoWeek').month();
+
+    return day.isBetween(startDate, endDate, 'days') && startDate &&
+      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
+      startDate.clone().startOf('isoWeek').month() != startDate.month()) ||
+      (day.month() === startDate.month() &&
+      startDate.clone().startOf('isoWeek').month() === startDate.month() && month < startDate.month())) &&
+      (month == day.month() ||
+        (
+          month != day.month() &&
+          month == day.clone().subtract(1,'month').month() &&
+          month >= startDate.month() &&
+          startDate.clone().startOf('isoWeek').month() != startDate.month()
+        ) || (
+          month != day.month() && startDate.clone().startOf('isoWeek').month() + 1 < day.month()
+      )) ;
+  }
+
+  isInMissingSpan(day) {
+    const { missingWeeks } = this.props;
+    const key = day ? `${day.year()}${day.isoWeek()}` : '';
+    return missingWeeks[key];
   }
 
   isLastInRange(day) {
@@ -1135,8 +1260,14 @@ export default class DayPickerRangeController extends React.PureComponent {
     return isSameDay(day, firstAvailableEndDate);
   }
 
+  updateModifiersParent() {
+    this.props.onChangeModifiers({...this.state.visibleDays});
+  }
+
   render() {
     const {
+      startDate,
+      endDate,
       numberOfMonths,
       orientation,
       monthFormat,
@@ -1159,8 +1290,10 @@ export default class DayPickerRangeController extends React.PureComponent {
       renderCalendarDay,
       renderDayContents,
       renderCalendarInfo,
+      renderCalendarInfoSecond,
       renderMonthElement,
       calendarInfoPosition,
+      calendarInfoPositionSecond,
       onBlur,
       onShiftTab,
       onTab,
@@ -1174,6 +1307,18 @@ export default class DayPickerRangeController extends React.PureComponent {
       transitionDuration,
       verticalBorderSpacing,
       horizontalMonthPadding,
+      onDatesChange,
+      isDayBlocked,
+      isOutsideRange,
+      errorMessage,
+      noBorderPicker,
+      hideWeekHeader,
+      showAllCaptions,
+      missingWeeks,
+      onFocusChange,
+      initialVisibleMonth,
+      monthIndex,
+      caption,
     } = this.props;
 
     const {
@@ -1186,6 +1331,8 @@ export default class DayPickerRangeController extends React.PureComponent {
 
     return (
       <DayPicker
+        startDate={startDate}
+        endDate={endDate}
         orientation={orientation}
         enableOutsideDays={enableOutsideDays}
         modifiers={visibleDays}
@@ -1218,10 +1365,12 @@ export default class DayPickerRangeController extends React.PureComponent {
         renderCalendarDay={renderCalendarDay}
         renderDayContents={renderDayContents}
         renderCalendarInfo={renderCalendarInfo}
+        renderCalendarInfoSecond={renderCalendarInfoSecond}
         renderMonthElement={renderMonthElement}
         renderKeyboardShortcutsButton={renderKeyboardShortcutsButton}
         renderKeyboardShortcutsPanel={renderKeyboardShortcutsPanel}
         calendarInfoPosition={calendarInfoPosition}
+        calendarInfoPositionSecond={calendarInfoPositionSecond}
         firstDayOfWeek={firstDayOfWeek}
         hideKeyboardShortcutsPanel={hideKeyboardShortcutsPanel}
         isFocused={isFocused}
@@ -1235,8 +1384,19 @@ export default class DayPickerRangeController extends React.PureComponent {
         verticalHeight={verticalHeight}
         verticalBorderSpacing={verticalBorderSpacing}
         noBorder={noBorder}
+        noBorderPicker={noBorderPicker}
         transitionDuration={transitionDuration}
         horizontalMonthPadding={horizontalMonthPadding}
+        onDatesChange={onDatesChange}
+        isDayBlocked={isDayBlocked}
+        isOutsideRange={isOutsideRange}
+        errorMessage={errorMessage}
+        hideWeekHeader={hideWeekHeader}
+        showAllCaptions={showAllCaptions}
+        missingWeeks={missingWeeks}
+        onFocusChange={onFocusChange}
+        monthIndex={monthIndex}
+        caption={caption}
       />
     );
   }

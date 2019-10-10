@@ -22,6 +22,7 @@ import isNextMonth from '../utils/isNextMonth';
 import ModifiersShape from '../shapes/ModifiersShape';
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
 import DayOfWeekShape from '../shapes/DayOfWeekShape';
+import getCalendarMonthWeeks from '../utils/getCalendarMonthWeeks';
 
 
 import {
@@ -29,6 +30,7 @@ import {
   VERTICAL_ORIENTATION,
   VERTICAL_SCROLLABLE,
   DAY_SIZE,
+  MONTH_NAME_SPACER,
 } from '../constants';
 
 const propTypes = forbidExtraProps({
@@ -65,6 +67,17 @@ const propTypes = forbidExtraProps({
   monthFormat: PropTypes.string,
   phrases: PropTypes.shape(getPhrasePropTypes(CalendarDayPhrases)),
   dayAriaLabelFormat: PropTypes.string,
+  onDatesChange: PropTypes.func,
+  isDayBlocked: PropTypes.func,
+  isOutsideRange: PropTypes.func,
+  errorMessage: PropTypes.string,
+  showAllCaptions: PropTypes.bool,
+  startDate: momentPropTypes.momentObj,
+  endDate: momentPropTypes.momentObj,
+  missingWeeks: PropTypes.object,
+  onFocusChange: PropTypes.func,
+  monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
 });
 
 const defaultProps = {
@@ -100,11 +113,24 @@ const defaultProps = {
   monthFormat: 'MMMM YYYY', // english locale
   phrases: CalendarDayPhrases,
   dayAriaLabelFormat: undefined,
+  monthIndex: 1,
 };
 
-function getMonths(initialMonth, numberOfMonths, withoutTransitionMonths) {
+function getMonths(initialMonth, numberOfMonths, withoutTransitionMonths, monthIndex) {
   let month = initialMonth.clone();
-  if (!withoutTransitionMonths) month = month.subtract(1, 'month');
+  const initialMonthIndex = month.month();
+  const startWeekMonth = month.clone().startOf('isoWeek').month();
+
+  const isInvalidPeriod = (initialMonthIndex !== monthIndex || (initialMonthIndex === monthIndex &&
+  startWeekMonth != monthIndex)) &&
+  (startWeekMonth == monthIndex ||
+    (
+      startWeekMonth != monthIndex &&
+      startWeekMonth == month.clone().subtract(1,'month').month() &&
+      startWeekMonth > monthIndex
+    )
+  );
+  if (!withoutTransitionMonths) month = month.subtract(monthIndex + (isInvalidPeriod ? 1 : 0), 'month');
 
   const months = [];
   for (let i = 0; i < (withoutTransitionMonths ? numberOfMonths : numberOfMonths + 2); i += 1) {
@@ -119,8 +145,9 @@ class CalendarMonthGrid extends React.PureComponent {
   constructor(props) {
     super(props);
     const withoutTransitionMonths = props.orientation === VERTICAL_SCROLLABLE;
+
     this.state = {
-      months: getMonths(props.initialMonth, props.numberOfMonths, withoutTransitionMonths),
+      months: getMonths(props.initialMonth, props.numberOfMonths, withoutTransitionMonths, props.monthIndex),
     };
 
     this.isTransitionEndSupported = isTransitionEndSupported();
@@ -141,9 +168,8 @@ class CalendarMonthGrid extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { initialMonth, numberOfMonths, orientation } = nextProps;
+    const { initialMonth, numberOfMonths, orientation, monthIndex } = nextProps;
     const { months } = this.state;
-
     const {
       initialMonth: prevInitialMonth,
       numberOfMonths: prevNumberOfMonths,
@@ -161,13 +187,13 @@ class CalendarMonthGrid extends React.PureComponent {
         newMonths.unshift(months[0].clone().subtract(1, 'month'));
       } else {
         const withoutTransitionMonths = orientation === VERTICAL_SCROLLABLE;
-        newMonths = getMonths(initialMonth, numberOfMonths, withoutTransitionMonths);
+        newMonths = getMonths(initialMonth, numberOfMonths, withoutTransitionMonths, monthIndex);
       }
     }
 
     if (hasNumberOfMonthsChanged) {
       const withoutTransitionMonths = orientation === VERTICAL_SCROLLABLE;
-      newMonths = getMonths(initialMonth, numberOfMonths, withoutTransitionMonths);
+      newMonths = getMonths(initialMonth, numberOfMonths, withoutTransitionMonths, monthIndex);
     }
 
     const momentLocale = moment.locale();
@@ -265,6 +291,16 @@ class CalendarMonthGrid extends React.PureComponent {
       transitionDuration,
       verticalBorderSpacing,
       setMonthTitleHeight,
+      onDatesChange,
+      isDayBlocked,
+      isOutsideRange,
+      errorMessage,
+      showAllCaptions,
+      startDate,
+      endDate,
+      missingWeeks,
+      onFocusChange,
+      caption,
       css,
     } = this.props;
 
@@ -273,17 +309,29 @@ class CalendarMonthGrid extends React.PureComponent {
     const isVerticalScrollable = orientation === VERTICAL_SCROLLABLE;
     const isHorizontal = orientation === HORIZONTAL_ORIENTATION;
 
-    const calendarMonthWidth = getCalendarMonthWidth(
-      daySize,
-      horizontalMonthPadding,
-    );
+    const calendarMonthWidth = getCalendarMonthWidth(daySize, horizontalMonthPadding) + MONTH_NAME_SPACER;
 
     const width = isVertical || isVerticalScrollable
       ? calendarMonthWidth
       : (numberOfMonths + 2) * calendarMonthWidth;
 
+    const weeks = getCalendarMonthWeeks(
+      months[translationValue > 0 ? 0 : 1],
+      enableOutsideDays,
+      firstDayOfWeek == null ? moment.localeData().firstDayOfWeek() : firstDayOfWeek
+    );
+
+    let weekNumber = 0;
+    weeks.forEach((week, i) => {
+      if ((i == 0 && Number(week[0] && week[0].date()) === 1) || i > 0) {
+        weekNumber++
+      }
+    });
+
+    const delta = 33;
+    const tr = translationValue > 0 ? translationValue : (translationValue < 0 ? translationValue + delta : 0);
     const transformType = (isVertical || isVerticalScrollable) ? 'translateY' : 'translateX';
-    const transformValue = `${transformType}(${translationValue}px)`;
+    const transformValue = `${transformType}(${tr}px)`;
 
     return (
       <div
@@ -305,26 +353,45 @@ class CalendarMonthGrid extends React.PureComponent {
         onTransitionEnd={onMonthTransitionEnd}
       >
         {months.map((month, i) => {
-          const isVisible = (i >= firstVisibleMonthIndex)
-            && (i < firstVisibleMonthIndex + numberOfMonths);
+          const isVisible = i >= firstVisibleMonthIndex && i < firstVisibleMonthIndex + numberOfMonths;
           const hideForAnimation = i === 0 && !isVisible;
           const showForAnimation = i === 0 && isAnimating && isVisible;
           const monthString = toISOMonthString(month);
+          const weeks = getCalendarMonthWeeks(
+              month,
+              enableOutsideDays,
+              firstDayOfWeek == null ? moment.localeData().firstDayOfWeek() : firstDayOfWeek
+          );
+
+          let weekNumber = 0;
+          weeks.forEach((week, i) => {
+            if ((i == 0 && Number(week[0] && week[0].date()) === 1) || i > 0) {
+              weekNumber++
+            }
+          });
+          const topMargin =  weekNumber * 30 + 30 || 0;
+
           return (
             <div
               key={monthString}
               {...css(
                 isHorizontal && styles.CalendarMonthGrid_month__horizontal,
                 hideForAnimation && styles.CalendarMonthGrid_month__hideForAnimation,
-                showForAnimation && !isVertical && !isRTL && {
+                hideForAnimation && {marginTop: -1 * topMargin},
+                showForAnimation
+                  && !isVertical
+                  && !isRTL && {
                   position: 'absolute',
                   left: -calendarMonthWidth,
                 },
-                showForAnimation && !isVertical && isRTL && {
+                showForAnimation
+                  && !isVertical
+                  && isRTL && {
                   position: 'absolute',
                   right: 0,
                 },
-                showForAnimation && isVertical && {
+                showForAnimation
+                  && isVertical && {
                   position: 'absolute',
                   top: -translationValue,
                 },
@@ -356,6 +423,17 @@ class CalendarMonthGrid extends React.PureComponent {
                 dayAriaLabelFormat={dayAriaLabelFormat}
                 verticalBorderSpacing={verticalBorderSpacing}
                 horizontalMonthPadding={horizontalMonthPadding}
+                onDatesChange={onDatesChange}
+                isDayBlocked={isDayBlocked}
+                isOutsideRange={isOutsideRange}
+                errorMessage={errorMessage}
+                monthIndex={i}
+                showAllCaptions={showAllCaptions}
+                endDate={endDate}
+                startDate={startDate}
+                missingWeeks={missingWeeks}
+                onFocusChange={onFocusChange}
+                caption={caption}
               />
             </div>
           );
@@ -368,59 +446,60 @@ class CalendarMonthGrid extends React.PureComponent {
 CalendarMonthGrid.propTypes = propTypes;
 CalendarMonthGrid.defaultProps = defaultProps;
 
-export default withStyles(({
-  reactDates: {
-    color,
-    noScrollBarOnVerticalScrollable,
-    spacing,
-    zIndex,
-  },
-}) => ({
-  CalendarMonthGrid: {
-    background: color.background,
-    textAlign: noflip('left'),
-    zIndex,
-  },
+export default withStyles(
+  ({
+    reactDates: {
+      color, noScrollBarOnVerticalScrollable, spacing, zIndex,
+    },
+  }) => ({
+    CalendarMonthGrid: {
+      background: color.background,
+      textAlign: noflip('left'),
+      zIndex,
+    },
 
-  CalendarMonthGrid__animating: {
-    zIndex: zIndex + 1,
-  },
+    CalendarMonthGrid__animating: {
+      zIndex: zIndex + 1,
+    },
 
-  CalendarMonthGrid__horizontal: {
-    position: 'absolute',
-    left: noflip(spacing.dayPickerHorizontalPadding),
-  },
+    CalendarMonthGrid__horizontal: {
+      position: 'absolute',
+      left: noflip(spacing.dayPickerHorizontalPadding),
+    },
 
-  CalendarMonthGrid__vertical: {
-    margin: '0 auto',
-  },
+    CalendarMonthGrid__vertical: {
+      margin: '0 auto',
+    },
 
-  CalendarMonthGrid__vertical_scrollable: {
-    margin: '0 auto',
-    overflowY: 'scroll',
-    ...(noScrollBarOnVerticalScrollable && {
-      '-webkitOverflowScrolling': 'touch',
-      '::-webkit-scrollbar': {
-        '-webkit-appearance': 'none',
-        display: 'none',
-      },
-    }),
-  },
+    CalendarMonthGrid__vertical_scrollable: {
+      margin: '0 auto',
+      overflowY: 'scroll',
+      ...((noScrollBarOnVerticalScrollable && {
+        '-webkitOverflowScrolling': 'touch',
+        '::-webkit-scrollbar': {
+          '-webkit-appearance': 'none',
+          display: 'none',
+        },
+      })
+        || {}),
+    },
 
-  CalendarMonthGrid_month__horizontal: {
-    display: 'inline-block',
-    verticalAlign: 'top',
-    minHeight: '100%',
-  },
+    CalendarMonthGrid_month__horizontal: {
+      display: 'inline-block',
+      verticalAlign: 'top',
+      minHeight: '100%',
+    },
 
-  CalendarMonthGrid_month__hideForAnimation: {
-    position: 'absolute',
-    zIndex: zIndex - 1,
-    opacity: 0,
-    pointerEvents: 'none',
-  },
+    CalendarMonthGrid_month__hideForAnimation: {
+      position: 'absolute',
+      zIndex: zIndex - 1,
+      opacity: 0,
+      pointerEvents: 'none',
+    },
 
-  CalendarMonthGrid_month__hidden: {
-    visibility: 'hidden',
-  },
-}), { pureComponent: typeof React.PureComponent !== 'undefined' })(CalendarMonthGrid);
+    CalendarMonthGrid_month__hidden: {
+      visibility: 'hidden',
+    },
+  }),
+  { pureComponent: typeof React.PureComponent !== 'undefined' },
+)(CalendarMonthGrid);

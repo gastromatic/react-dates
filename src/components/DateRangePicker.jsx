@@ -1,8 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import { withStyles, withStylesPropTypes } from 'react-with-styles';
 import { Portal } from 'react-portal';
-import { forbidExtraProps } from 'airbnb-prop-types';
+import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
 import { addEventListener } from 'consolidated-events';
 import isTouchDevice from 'is-touch-device';
 import OutsideClickHandler from 'react-outside-click-handler';
@@ -32,15 +33,33 @@ import {
   OPEN_UP,
   DAY_SIZE,
   ICON_BEFORE_POSITION,
+  INFO_POSITION_TOP,
   INFO_POSITION_BOTTOM,
   FANG_HEIGHT_PX,
   DEFAULT_VERTICAL_SPACING,
   NAV_POSITION_TOP,
 } from '../constants';
 
+moment.locale('de');
+
 const propTypes = forbidExtraProps({
   ...withStylesPropTypes,
   ...DateRangePickerShape,
+  missingWeeks: PropTypes.object,
+  errorMessage: PropTypes.string,
+  embedded: PropTypes.bool,
+  noBorderPicker: PropTypes.bool,
+  hideWeekHeader: PropTypes.bool,
+  showAllCaptions: PropTypes.bool,
+  renderCalendarInfoSecond: PropTypes.func,
+  calendarInfoPositionSecond: PropTypes.string,
+  emptyPeriodMessage: PropTypes.string,
+  onChangeModifiers: PropTypes.func,
+  onMonthIndexChanged: PropTypes.func,
+  monthIndex: nonNegativeInteger,
+  caption: PropTypes.string.isRequired,
+  startDateId: PropTypes.string,
+  endDateId: PropTypes.string,
 });
 
 const defaultProps = {
@@ -88,11 +107,13 @@ const defaultProps = {
   keepOpenOnDateSelect: false,
   reopenPickerOnClearDates: false,
   renderCalendarInfo: null,
-  calendarInfoPosition: INFO_POSITION_BOTTOM,
-  hideKeyboardShortcutsPanel: false,
+  renderCalendarInfoSecond: null,
+  calendarInfoPosition: INFO_POSITION_TOP,
+  calendarInfoPositionSecond: INFO_POSITION_BOTTOM,
+  hideKeyboardShortcutsPanel: true,
   daySize: DAY_SIZE,
   isRTL: false,
-  firstDayOfWeek: null,
+  firstDayOfWeek: 1,
   verticalHeight: null,
   transitionDuration: undefined,
   verticalSpacing: DEFAULT_VERTICAL_SPACING,
@@ -127,6 +148,17 @@ const defaultProps = {
   weekDayFormat: 'dd',
   phrases: DateRangePickerPhrases,
   dayAriaLabelFormat: undefined,
+  missingWeeks: {},
+  errorMessage: '',
+  embedded: false,
+  noBorderPicker: false,
+  hideWeekHeader: false,
+  showAllCaptions: false,
+  emptyPeriodMessage: '',
+  monthIndex: 1,
+  caption: 'Optimierungszeitraum',
+  startDateId: START_DATE,
+  endDateId: END_DATE,
 };
 
 class DateRangePicker extends React.PureComponent {
@@ -137,6 +169,7 @@ class DateRangePicker extends React.PureComponent {
       isDateRangePickerInputFocused: false,
       isDayPickerFocused: false,
       showKeyboardShortcuts: false,
+      monthIndex: 1
     };
 
     this.isTouchDevice = false;
@@ -156,12 +189,9 @@ class DateRangePicker extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.removeEventListener = addEventListener(
-      window,
-      'resize',
-      this.responsivizePickerPosition,
-      { passive: true },
-    );
+    this.removeEventListener = addEventListener(window, 'resize', this.responsivizePickerPosition, {
+      passive: true,
+    });
     this.responsivizePickerPosition();
     this.disableScroll();
 
@@ -195,14 +225,10 @@ class DateRangePicker extends React.PureComponent {
 
   onOutsideClick(event) {
     const {
-      onFocusChange,
-      onClose,
-      startDate,
-      endDate,
-      appendToBody,
+      onFocusChange, onClose, startDate, endDate, appendToBody, embedded,
     } = this.props;
 
-    if (!this.isOpened()) return;
+    if (!this.isOpened() || embedded) return;
     if (appendToBody && this.dayPickerContainer.contains(event.target)) return;
 
     this.setState({
@@ -258,9 +284,7 @@ class DateRangePicker extends React.PureComponent {
     //
     // We handle both situations here by using the ` || ` operator to fallback
     // to *event.target** when **relatedTarget** is not provided.
-    const relatedTarget = event.relatedTarget === document.body
-      ? event.target
-      : (event.relatedTarget || event.target);
+    const relatedTarget = event.relatedTarget === document.body ? event.target : event.relatedTarget || event.target;
     if (this.dayPickerContainer.contains(relatedTarget)) return;
     this.onOutsideClick(event);
   }
@@ -324,11 +348,7 @@ class DateRangePicker extends React.PureComponent {
   responsivizePickerPosition() {
     // It's possible the portal props have been changed in response to window resizes
     // So let's ensure we reset this back to the base state each time
-    const { dayPickerContainerStyles } = this.state;
-
-    if (Object.keys(dayPickerContainerStyles).length > 0) {
-      this.setState({ dayPickerContainerStyles: {} });
-    }
+    this.setState({ dayPickerContainerStyles: {} });
 
     if (!this.isOpened()) {
       return;
@@ -342,6 +362,7 @@ class DateRangePicker extends React.PureComponent {
       withFullScreenPortal,
       appendToBody,
     } = this.props;
+    const { dayPickerContainerStyles } = this.state;
 
     const isAnchoredLeft = anchorDirection === ANCHOR_LEFT;
     if (!withPortal && !withFullScreenPortal) {
@@ -359,11 +380,9 @@ class DateRangePicker extends React.PureComponent {
             containerEdge,
             horizontalMargin,
           ),
-          ...(appendToBody && getDetachedContainerStyles(
-            openDirection,
-            anchorDirection,
-            this.container,
-          )),
+          ...((appendToBody
+            && getDetachedContainerStyles(openDirection, anchorDirection, this.container))
+            || {}),
         },
       });
     }
@@ -385,11 +404,7 @@ class DateRangePicker extends React.PureComponent {
     }
 
     if (withPortal || withFullScreenPortal || appendToBody) {
-      return (
-        <Portal>
-          {this.renderDayPicker()}
-        </Portal>
-      );
+      return <Portal>{this.renderDayPicker()}</Portal>;
     }
 
     return this.renderDayPicker();
@@ -432,8 +447,10 @@ class DateRangePicker extends React.PureComponent {
       renderCalendarDay,
       renderDayContents,
       renderCalendarInfo,
+      renderCalendarInfoSecond,
       renderMonthElement,
       calendarInfoPosition,
+      calendarInfoPositionSecond,
       firstDayOfWeek,
       initialVisibleMonth,
       hideKeyboardShortcutsPanel,
@@ -450,17 +467,22 @@ class DateRangePicker extends React.PureComponent {
       horizontalMonthPadding,
       small,
       disabled,
+      missingWeeks,
+      errorMessage,
       theme: { reactDates },
+      noBorderPicker,
+      hideWeekHeader,
+      showAllCaptions,
+      onChangeModifiers,
+      onMonthIndexChanged,
+      monthIndex,
+      caption,
     } = this.props;
 
     const { dayPickerContainerStyles, isDayPickerFocused, showKeyboardShortcuts } = this.state;
 
-    const onOutsideClick = (!withFullScreenPortal && withPortal)
-      ? this.onOutsideClick
-      : undefined;
-    const initialVisibleMonthThunk = initialVisibleMonth || (
-      () => (startDate || endDate || moment())
-    );
+    const onOutsideClick = !withFullScreenPortal && withPortal ? this.onOutsideClick : undefined;
+    const initialVisibleMonthThunk = initialVisibleMonth || (() => startDate || endDate || moment());
 
     const closeIcon = customCloseIcon || (
       <CloseButton {...css(styles.DateRangePicker_closeButton_svg)} />
@@ -479,10 +501,12 @@ class DateRangePicker extends React.PureComponent {
           anchorDirection === ANCHOR_RIGHT && styles.DateRangePicker_picker__directionRight,
           orientation === HORIZONTAL_ORIENTATION && styles.DateRangePicker_picker__horizontal,
           orientation === VERTICAL_ORIENTATION && styles.DateRangePicker_picker__vertical,
-          !withAnyPortal && openDirection === OPEN_DOWN && {
-            top: inputHeight + verticalSpacing,
+          !withAnyPortal
+            && openDirection === OPEN_DOWN && {
+            top: 0, // previous value: inputHeight + verticalSpacing
           },
-          !withAnyPortal && openDirection === OPEN_UP && {
+          !withAnyPortal
+            && openDirection === OPEN_UP && {
             bottom: inputHeight + verticalSpacing,
           },
           withAnyPortal && styles.DateRangePicker_picker__portal,
@@ -527,8 +551,10 @@ class DateRangePicker extends React.PureComponent {
           renderCalendarDay={renderCalendarDay}
           renderDayContents={renderDayContents}
           renderCalendarInfo={renderCalendarInfo}
+          renderCalendarInfoSecond={renderCalendarInfoSecond}
           renderMonthElement={renderMonthElement}
           calendarInfoPosition={calendarInfoPosition}
+          calendarInfoPositionSecond={calendarInfoPositionSecond}
           isFocused={isDayPickerFocused}
           showKeyboardShortcuts={showKeyboardShortcuts}
           onBlur={this.onDayPickerBlur}
@@ -541,6 +567,15 @@ class DateRangePicker extends React.PureComponent {
           transitionDuration={transitionDuration}
           disabled={disabled}
           horizontalMonthPadding={horizontalMonthPadding}
+          missingWeeks={missingWeeks}
+          errorMessage={errorMessage}
+          noBorderPicker={noBorderPicker}
+          hideWeekHeader={hideWeekHeader}
+          showAllCaptions={showAllCaptions}
+          onChangeModifiers={onChangeModifiers}
+          onMonthIndexChanged={onMonthIndexChanged}
+          monthIndex={monthIndex}
+          caption={caption}
         />
 
         {withFullScreenPortal && (
@@ -601,7 +636,7 @@ class DateRangePicker extends React.PureComponent {
 
     const { isDateRangePickerInputFocused } = this.state;
 
-    const enableOutsideClick = (!withPortal && !withFullScreenPortal);
+    const enableOutsideClick = !withPortal && !withFullScreenPortal;
 
     const hideFang = verticalSpacing < FANG_HEIGHT_PX;
 
@@ -656,15 +691,10 @@ class DateRangePicker extends React.PureComponent {
     return (
       <div
         ref={this.setContainerRef}
-        {...css(
-          styles.DateRangePicker,
-          block && styles.DateRangePicker__block,
-        )}
+        {...css(styles.DateRangePicker, block && styles.DateRangePicker__block)}
       >
         {enableOutsideClick && (
-          <OutsideClickHandler onOutsideClick={this.onOutsideClick}>
-            {input}
-          </OutsideClickHandler>
+          <OutsideClickHandler onOutsideClick={this.onOutsideClick}>{input}</OutsideClickHandler>
         )}
         {enableOutsideClick || input}
       </div>
@@ -676,76 +706,79 @@ DateRangePicker.propTypes = propTypes;
 DateRangePicker.defaultProps = defaultProps;
 
 export { DateRangePicker as PureDateRangePicker };
-export default withStyles(({ reactDates: { color, zIndex } }) => ({
-  DateRangePicker: {
-    position: 'relative',
-    display: 'inline-block',
-  },
-
-  DateRangePicker__block: {
-    display: 'block',
-  },
-
-  DateRangePicker_picker: {
-    zIndex: zIndex + 1,
-    backgroundColor: color.background,
-    position: 'absolute',
-  },
-
-  DateRangePicker_picker__rtl: {
-    direction: noflip('rtl'),
-  },
-
-  DateRangePicker_picker__directionLeft: {
-    left: noflip(0),
-  },
-
-  DateRangePicker_picker__directionRight: {
-    right: noflip(0),
-  },
-
-  DateRangePicker_picker__portal: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    position: 'fixed',
-    top: 0,
-    left: noflip(0),
-    height: '100%',
-    width: '100%',
-  },
-
-  DateRangePicker_picker__fullScreenPortal: {
-    backgroundColor: color.background,
-  },
-
-  DateRangePicker_closeButton: {
-    background: 'none',
-    border: 0,
-    color: 'inherit',
-    font: 'inherit',
-    lineHeight: 'normal',
-    overflow: 'visible',
-    cursor: 'pointer',
-
-    position: 'absolute',
-    top: 0,
-    right: noflip(0),
-    padding: 15,
-    zIndex: zIndex + 2,
-
-    ':hover': {
-      color: `darken(${color.core.grayLighter}, 10%)`,
-      textDecoration: 'none',
+export default withStyles(
+  ({ reactDates: { color, zIndex } }) => ({
+    DateRangePicker: {
+      position: 'relative',
+      display: 'inline-block',
     },
 
-    ':focus': {
-      color: `darken(${color.core.grayLighter}, 10%)`,
-      textDecoration: 'none',
+    DateRangePicker__block: {
+      display: 'block',
     },
-  },
 
-  DateRangePicker_closeButton_svg: {
-    height: 15,
-    width: 15,
-    fill: color.core.grayLighter,
-  },
-}), { pureComponent: typeof React.PureComponent !== 'undefined' })(DateRangePicker);
+    DateRangePicker_picker: {
+      zIndex: zIndex + 1,
+      backgroundColor: color.background,
+      position: 'absolute',
+    },
+
+    DateRangePicker_picker__rtl: {
+      direction: noflip('rtl'),
+    },
+
+    DateRangePicker_picker__directionLeft: {
+      left: noflip(0),
+    },
+
+    DateRangePicker_picker__directionRight: {
+      right: noflip(0),
+    },
+
+    DateRangePicker_picker__portal: {
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      position: 'fixed',
+      top: 0,
+      left: noflip(0),
+      height: '100%',
+      width: '100%',
+    },
+
+    DateRangePicker_picker__fullScreenPortal: {
+      backgroundColor: color.background,
+    },
+
+    DateRangePicker_closeButton: {
+      background: 'none',
+      border: 0,
+      color: 'inherit',
+      font: 'inherit',
+      lineHeight: 'normal',
+      overflow: 'visible',
+      cursor: 'pointer',
+
+      position: 'absolute',
+      top: 0,
+      right: noflip(0),
+      padding: 15,
+      zIndex: zIndex + 2,
+
+      ':hover': {
+        color: `darken(${color.core.grayLighter}, 10%)`,
+        textDecoration: 'none',
+      },
+
+      ':focus': {
+        color: `darken(${color.core.grayLighter}, 10%)`,
+        textDecoration: 'none',
+      },
+    },
+
+    DateRangePicker_closeButton_svg: {
+      height: 15,
+      width: 15,
+      fill: color.core.grayLighter,
+    },
+  }),
+  { pureComponent: typeof React.PureComponent !== 'undefined' },
+)(DateRangePicker);

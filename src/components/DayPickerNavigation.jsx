@@ -38,6 +38,8 @@ const propTypes = forbidExtraProps({
 
   inlineStyles: PropTypes.object,
   isRTL: PropTypes.bool,
+  position: PropTypes.string,
+  type: PropTypes.string,
 });
 
 const defaultProps = {
@@ -72,6 +74,8 @@ function DayPickerNavigation({
   phrases,
   isRTL,
   styles,
+  position,
+  type,
 }) {
   const isHorizontal = orientation === HORIZONTAL_ORIENTATION;
   const isVertical = orientation !== HORIZONTAL_ORIENTATION;
@@ -124,29 +128,32 @@ function DayPickerNavigation({
 
   const isDefaultNav = isVerticalScrollable
     ? isDefaultNavNext
-    : (isDefaultNavNext || isDefaultNavPrev);
+    : isDefaultNavNext || isDefaultNavPrev;
 
   return (
     <div
       {...css(
         styles.DayPickerNavigation,
         isHorizontal && styles.DayPickerNavigation__horizontal,
-        ...(isVertical ? [
-          styles.DayPickerNavigation__vertical,
-          isDefaultNav && styles.DayPickerNavigation__verticalDefault,
-        ] : []),
-        ...(isVerticalScrollable ? [
-          styles.DayPickerNavigation__verticalScrollable,
-          isDefaultNav && styles.DayPickerNavigation__verticalScrollableDefault,
-        ] : []),
-        ...(isBottomNavPosition ? [
-          styles.DayPickerNavigation__bottom,
-          isDefaultNav && styles.DayPickerNavigation__bottomDefault,
-        ] : []),
+        ...(isVertical
+          ? [
+            styles.DayPickerNavigation__vertical,
+            isDefaultNav
+                && (position === 'top'
+                  ? styles.DayPickerNavigation__verticalTop
+                  : styles.DayPickerNavigation__verticalDefault),
+          ]
+          : []),
+        ...(isVerticalScrollable
+          ? [
+            styles.DayPickerNavigation__verticalScrollable,
+            isDefaultNav && styles.DayPickerNavigation__verticalScrollableDefault,
+          ]
+          : []),
         hasInlineStyles && inlineStyles,
       )}
     >
-      {!isVerticalScrollable && (
+      {!isVerticalScrollable && (type === 'prev' || type === 'both') && (
         <div // eslint-disable-line jsx-a11y/interactive-supports-focus
           role="button"
           {...navPrevTabIndex}
@@ -154,78 +161,111 @@ function DayPickerNavigation({
             styles.DayPickerNavigation_button,
             isDefaultNavPrev && styles.DayPickerNavigation_button__default,
             disablePrev && styles.DayPickerNavigation_button__disabled,
-            ...(isHorizontal ? [
-              styles.DayPickerNavigation_button__horizontal,
-              ...(isDefaultNavPrev ? [
-                styles.DayPickerNavigation_button__horizontalDefault,
-                isBottomNavPosition && styles.DayPickerNavigation_bottomButton__horizontalDefault,
-                !isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
-                isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
-              ] : []),
-            ] : []),
-            ...(isVertical ? [
-              styles.DayPickerNavigation_button__vertical,
-              ...(isDefaultNavPrev ? [
-                styles.DayPickerNavigation_button__verticalDefault,
-                styles.DayPickerNavigation_prevButton__verticalDefault,
-              ] : []),
-            ] : []),
+            ...(isHorizontal
+              ? [
+                styles.DayPickerNavigation_button__horizontal,
+                ...(isDefaultNavPrev
+                  ? [
+                    styles.DayPickerNavigation_button__horizontalDefault,
+                    !isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
+                    isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
+                  ]
+                  : []),
+              ]
+              : []),
+            ...(isVertical
+              ? [
+                styles.DayPickerNavigation_button__vertical,
+                styles.DayPickerNavigation_button__verticalPrev,
+                ...(isDefaultNavPrev
+                  ? [
+                    styles.DayPickerNavigation_button__verticalDefault,
+                    styles.DayPickerNavigation_prevButton__verticalDefault,
+                  ]
+                  : []),
+              ]
+              : []),
           )}
           aria-disabled={disablePrev ? true : undefined}
           aria-label={phrases.jumpToPrevMonth}
           onClick={disablePrev ? undefined : onPrevMonthClick}
-          onKeyUp={disablePrev ? undefined : (e) => {
-            const { key } = e;
-            if (key === 'Enter' || key === ' ') onPrevMonthClick(e);
-          }}
-          onMouseUp={disablePrev ? undefined : (e) => {
-            e.currentTarget.blur();
-          }}
+          onKeyUp={
+            disablePrev
+              ? undefined
+              : (e) => {
+                const { key } = e;
+                if (key === 'Enter' || key === ' ') onPrevMonthClick(e);
+              }
+          }
+          onMouseUp={
+            disablePrev
+              ? undefined
+              : (e) => {
+                e.currentTarget.blur();
+              }
+          }
         >
           {navPrevIcon}
         </div>
       )}
 
-      <div // eslint-disable-line jsx-a11y/interactive-supports-focus
-        role="button"
-        {...navNextTabIndex}
-        {...css(
-          styles.DayPickerNavigation_button,
-          isDefaultNavNext && styles.DayPickerNavigation_button__default,
-          disableNext && styles.DayPickerNavigation_button__disabled,
-          ...(isHorizontal ? [
-            styles.DayPickerNavigation_button__horizontal,
-            ...(isDefaultNavNext ? [
-              styles.DayPickerNavigation_button__horizontalDefault,
-              isBottomNavPosition && styles.DayPickerNavigation_bottomButton__horizontalDefault,
-              isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
-              !isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
-            ] : []),
-          ] : []),
-          ...(isVertical ? [
-            styles.DayPickerNavigation_button__vertical,
-            styles.DayPickerNavigation_nextButton__vertical,
-            ...(isDefaultNavNext ? [
-              styles.DayPickerNavigation_button__verticalDefault,
-              styles.DayPickerNavigation_nextButton__verticalDefault,
-              isVerticalScrollable
-                && styles.DayPickerNavigation_nextButton__verticalScrollableDefault,
-            ] : []),
-          ] : []),
-        )}
-        aria-disabled={disableNext ? true : undefined}
-        aria-label={phrases.jumpToNextMonth}
-        onClick={disableNext ? undefined : onNextMonthClick}
-        onKeyUp={disableNext ? undefined : (e) => {
-          const { key } = e;
-          if (key === 'Enter' || key === ' ') onNextMonthClick(e);
-        }}
-        onMouseUp={disableNext ? undefined : (e) => {
-          e.currentTarget.blur();
-        }}
-      >
-        {navNextIcon}
-      </div>
+      {(type === 'next' || type === 'both') && (
+        <div // eslint-disable-line jsx-a11y/interactive-supports-focus
+          role="button"
+          {...navNextTabIndex}
+          {...css(
+            styles.DayPickerNavigation_button,
+            isDefaultNavNext && styles.DayPickerNavigation_button__default,
+            disableNext && styles.DayPickerNavigation_button__disabled,
+            ...(isHorizontal
+              ? [
+                styles.DayPickerNavigation_button__horizontal,
+                ...(isDefaultNavNext
+                  ? [
+                    styles.DayPickerNavigation_button__horizontalDefault,
+                    isRTL && styles.DayPickerNavigation_leftButton__horizontalDefault,
+                    !isRTL && styles.DayPickerNavigation_rightButton__horizontalDefault,
+                  ]
+                  : []),
+              ]
+              : []),
+            ...(isVertical
+              ? [
+                styles.DayPickerNavigation_button__vertical,
+                styles.DayPickerNavigation_nextButton__vertical,
+                ...(isDefaultNavNext
+                  ? [
+                    styles.DayPickerNavigation_button__verticalDefault,
+                    styles.DayPickerNavigation_nextButton__verticalDefault,
+                    isVerticalScrollable
+                          && styles.DayPickerNavigation_nextButton__verticalScrollableDefault,
+                  ]
+                  : []),
+              ]
+              : []),
+          )}
+          aria-disabled={disableNext ? true : undefined}
+          aria-label={phrases.jumpToNextMonth}
+          onClick={disableNext ? undefined : onNextMonthClick}
+          onKeyUp={
+            disableNext
+              ? undefined
+              : (e) => {
+                const { key } = e;
+                if (key === 'Enter' || key === ' ') onNextMonthClick(e);
+              }
+          }
+          onMouseUp={
+            disableNext
+              ? undefined
+              : (e) => {
+                e.currentTarget.blur();
+              }
+          }
+        >
+          {navNextIcon}
+        </div>
+      )}
     </div>
   );
 }
@@ -233,149 +273,154 @@ function DayPickerNavigation({
 DayPickerNavigation.propTypes = propTypes;
 DayPickerNavigation.defaultProps = defaultProps;
 
-export default withStyles(({ reactDates: { color, zIndex } }) => ({
-  DayPickerNavigation: {
-    position: 'relative',
-    zIndex: zIndex + 2,
-  },
-
-  DayPickerNavigation__horizontal: {
-    height: 0,
-  },
-
-  DayPickerNavigation__vertical: {},
-  DayPickerNavigation__verticalScrollable: {},
-
-  DayPickerNavigation__verticalDefault: {
-    position: 'absolute',
-    width: '100%',
-    height: 52,
-    bottom: 0,
-    left: noflip(0),
-  },
-
-  DayPickerNavigation__verticalScrollableDefault: {
-    position: 'relative',
-  },
-
-  DayPickerNavigation__bottom: {
-    height: 'auto',
-  },
-
-  DayPickerNavigation__bottomDefault: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-
-  DayPickerNavigation_button: {
-    cursor: 'pointer',
-    userSelect: 'none',
-    border: 0,
-    padding: 0,
-    margin: 0,
-  },
-
-  DayPickerNavigation_button__default: {
-    border: `1px solid ${color.core.borderLight}`,
-    backgroundColor: color.background,
-    color: color.placeholderText,
-
-    ':focus': {
-      border: `1px solid ${color.core.borderMedium}`,
+export default withStyles(
+  ({ reactDates: { color, zIndex } }) => ({
+    DayPickerNavigation: {
+      position: 'relative',
+      zIndex: zIndex + 2,
     },
 
-    ':hover': {
-      border: `1px solid ${color.core.borderMedium}`,
+    DayPickerNavigation__horizontal: {
+      height: 0,
     },
 
-    ':active': {
-      background: color.backgroundDark,
+    DayPickerNavigation__vertical: {},
+    DayPickerNavigation__verticalScrollable: {},
+
+    DayPickerNavigation__verticalDefault: {
+      position: 'absolute',
+      width: '100%',
+      height: 16,
+      bottom: 0,
+      left: noflip(0),
+      borderRadius: 4,
     },
-  },
 
-  DayPickerNavigation_button__disabled: {
-    cursor: 'default',
-    border: `1px solid ${color.disabled}`,
+    DayPickerNavigation__verticalTop: {
+      position: 'absolute',
+      width: '100%',
+      height: 16,
+      top: 0,
+      left: noflip(0),
+      borderRadius: 4,
+    },
 
-    ':focus': {
+    DayPickerNavigation__verticalScrollableDefault: {
+      position: 'relative',
+    },
+
+    DayPickerNavigation_button: {
+      cursor: 'pointer',
+      userSelect: 'none',
+      border: 0,
+      padding: 0,
+      margin: 0,
+    },
+
+    DayPickerNavigation_button__default: {
+      border: `1px solid ${color.core.borderLight}`,
+      backgroundColor: color.background,
+      color: color.placeholderText,
+
+      ':focus': {
+        border: `1px solid ${color.core.borderMedium}`,
+      },
+
+      ':hover': {
+        border: `1px solid ${color.core.borderMedium}`,
+      },
+
+      ':active': {
+        background: color.backgroundDark,
+      },
+    },
+
+    DayPickerNavigation_button__disabled: {
+      cursor: 'default',
       border: `1px solid ${color.disabled}`,
+
+      ':focus': {
+        border: `1px solid ${color.disabled}`,
+      },
+
+      ':hover': {
+        border: `1px solid ${color.disabled}`,
+      },
+
+      ':active': {
+        background: 'none',
+      },
     },
 
-    ':hover': {
-      border: `1px solid ${color.disabled}`,
+    DayPickerNavigation_button__horizontal: {},
+
+    DayPickerNavigation_button__horizontalDefault: {
+      position: 'absolute',
+      top: 18,
+      lineHeight: 0.78,
+      borderRadius: 3,
+      padding: '6px 9px',
     },
 
-    ':active': {
-      background: 'none',
+    DayPickerNavigation_leftButton__horizontalDefault: {
+      left: noflip(22),
     },
-  },
 
-  DayPickerNavigation_button__horizontal: {
-  },
+    DayPickerNavigation_rightButton__horizontalDefault: {
+      right: noflip(22),
+    },
 
-  DayPickerNavigation_button__horizontalDefault: {
-    position: 'absolute',
-    top: 18,
-    lineHeight: 0.78,
-    borderRadius: 3,
-    padding: '6px 9px',
-  },
+    DayPickerNavigation_button__vertical: {},
 
-  DayPickerNavigation_bottomButton__horizontalDefault: {
-    position: 'static',
-    marginLeft: 22,
-    marginRight: 22,
-    marginBottom: 30,
-    marginTop: -10,
-  },
+    DayPickerNavigation_button__verticalDefault: {
+      padding: '0px !important',
+      // background: color.background,
+      // boxShadow: noflip('0 0 5px 2px rgba(0, 0, 0, 0.1)'),
+      background: 'rgb(249, 251, 253) !important',
+      border: '1px solid rgb(215, 228, 236) !important',
+      position: 'relative',
+      display: 'inline-block',
+      textAlign: 'center',
+      height: '100%',
+      width: '100%',
+    },
 
-  DayPickerNavigation_leftButton__horizontalDefault: {
-    left: noflip(22),
-  },
+    DayPickerNavigation_prevButton__verticalDefault: {
+      marginTop: 25,
+    },
+    DayPickerNavigation_button__verticalPrev: {
+      marginTop: 25,
+    },
 
-  DayPickerNavigation_rightButton__horizontalDefault: {
-    right: noflip(22),
-  },
+    DayPickerNavigation_nextButton__verticalDefault: {
+      borderLeft: noflip(0),
+      marginTop: 0,
+    },
+    DayPickerNavigation_nextButton__vertical: {
+      borderLeft: noflip(0),
+      marginTop: 0,
+    },
 
-  DayPickerNavigation_button__vertical: {
-  },
+    DayPickerNavigation_nextButton__verticalScrollableDefault: {
+      width: '100%',
+    },
 
-  DayPickerNavigation_button__verticalDefault: {
-    padding: 5,
-    background: color.background,
-    boxShadow: noflip('0 0 5px 2px rgba(0, 0, 0, 0.1)'),
-    position: 'relative',
-    display: 'inline-block',
-    textAlign: 'center',
-    height: '100%',
-    width: '50%',
-  },
+    DayPickerNavigation_svg__horizontal: {
+      height: 19,
+      width: 19,
+      fill: color.core.grayLight,
+      display: 'block',
+    },
 
-  DayPickerNavigation_prevButton__verticalDefault: {
-  },
+    DayPickerNavigation_svg__vertical: {
+      height: 6,
+      width: 6,
+      fill: color.text,
+    },
 
-  DayPickerNavigation_nextButton__verticalDefault: {
-    borderLeft: noflip(0),
-  },
-
-  DayPickerNavigation_nextButton__verticalScrollableDefault: {
-    width: '100%',
-  },
-
-  DayPickerNavigation_svg__horizontal: {
-    height: 19,
-    width: 19,
-    fill: color.core.grayLight,
-    display: 'block',
-  },
-
-  DayPickerNavigation_svg__vertical: {
-    height: 42,
-    width: 42,
-    fill: color.text,
-  },
-
-  DayPickerNavigation_svg__disabled: {
-    fill: color.disabled,
-  },
-}), { pureComponent: typeof React.PureComponent !== 'undefined' })(DayPickerNavigation);
+    DayPickerNavigation_svg__disabled: {
+      fill: color.disabled,
+    },
+  }),
+  { pureComponent: typeof React.PureComponent !== 'undefined' },
+)(DayPickerNavigation);
