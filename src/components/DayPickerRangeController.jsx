@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import momentPropTypes from 'react-moment-proptypes';
 import { forbidExtraProps, mutuallyExclusiveProps, nonNegativeInteger } from 'airbnb-prop-types';
 import moment from 'moment';
+import _ from 'lodash';
 import values from 'object.values';
 import isTouchDevice from 'is-touch-device';
 
@@ -163,7 +164,8 @@ const defaultProps = {
   navPrev: null,
   navNext: null,
   noNavButtons: false,
-
+  onChangeModifiers: () => {},
+  onMonthIndexChanged: () => {},
   onPrevMonthClick() {},
   onNextMonthClick() {},
   onOutsideClick() {},
@@ -587,6 +589,24 @@ export default class DayPickerRangeController extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    const { missingWeeks } = this.props;
+    if (!_.isEqual(prevProps.missingWeeks, missingWeeks)) {
+      this.onMissingWeeksChange();
+    }
+  }
+
+  onMissingWeeksChange() {
+    const { visibleDays } = this.state;
+    let newVisibleDays = {};
+    _.forEach(visibleDays, (monthDays, month) => {
+      newVisibleDays[month] = Object.keys(monthDays).map((date) => moment(date, 'YYYY-MM-DD'));
+    });
+    this.setState({
+      visibleDays: this.getModifiers(newVisibleDays),
+    }, () => { this.updateModifiersParent(newVisibleDays); });
+  }
+
   onDayClick(day, e, monthIndex) {
     const {
       keepOpenOnDateSelect,
@@ -599,7 +619,6 @@ export default class DayPickerRangeController extends React.Component {
       startDateOffset,
       endDateOffset,
       disabled,
-      missingWeeks,
       onMonthIndexChanged,
     } = this.props;
     if (focusedInput === START_DATE) {
@@ -1316,7 +1335,6 @@ export default class DayPickerRangeController extends React.Component {
       showAllCaptions,
       missingWeeks,
       onFocusChange,
-      initialVisibleMonth,
       monthIndex,
       caption,
     } = this.props;
