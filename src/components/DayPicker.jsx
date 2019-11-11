@@ -90,7 +90,9 @@ const propTypes = forbidExtraProps({
   navNext: PropTypes.node,
   noNavButtons: PropTypes.bool,
   onPrevMonthClick: PropTypes.func,
+  onPrevMonthTransition: PropTypes.func,
   onNextMonthClick: PropTypes.func,
+  onNextMonthTransition: PropTypes.func,
   onMonthChange: PropTypes.func,
   onYearChange: PropTypes.func,
   onMultiplyScrollableMonths: PropTypes.func, // VERTICAL_SCROLLABLE daypickers only
@@ -174,7 +176,9 @@ export const defaultProps = {
   navNext: null,
   noNavButtons: false,
   onPrevMonthClick() {},
+  onPrevMonthTransition() {},
   onNextMonthClick() {},
+  onNextMonthTransition() {},
   onMonthChange() {},
   onYearChange() {},
   onMultiplyScrollableMonths() {},
@@ -501,6 +505,8 @@ class DayPicker extends React.PureComponent {
 
   onPrevMonthClick(e) {
     if (e) e.preventDefault();
+    const { onPrevMonthTransition } = this.props;
+    if (onPrevMonthTransition) onPrevMonthTransition();
     this.onPrevMonthTransition();
   }
 
@@ -564,6 +570,8 @@ class DayPicker extends React.PureComponent {
 
   onNextMonthClick(e) {
     if (e) e.preventDefault();
+    const { onNextMonthTransition } = this.props;
+    if (onNextMonthTransition) onNextMonthTransition();
     this.onNextMonthTransition();
   }
 

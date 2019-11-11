@@ -17,6 +17,7 @@ import calculateDimension from '../utils/calculateDimension';
 import getCalendarMonthWeeks from '../utils/getCalendarMonthWeeks';
 import isSameDay from '../utils/isSameDay';
 import toISODateString from '../utils/toISODateString';
+import getOtrTimeRange from '../utils/getOtrTimeRange';
 
 import ModifiersShape from '../shapes/ModifiersShape';
 import ScrollableOrientationShape from '../shapes/ScrollableOrientationShape';
@@ -190,20 +191,18 @@ class CalendarMonth extends React.PureComponent {
     onFocusChange(START_DATE);
   }
 
-  getLastInvalidWeek() {
-    const { modifiers } = this.props;
+  getLastInvalidWeek(startDate, endDate) {
     const { weeks } = this.state;
     let lastInvalidWeek = null;
+    const { startDate: otrStartDate, endDate: otrEndDate } = getOtrTimeRange(startDate);
 
     weeks.forEach((week, i) => {
       week.forEach((day) => {
-        if (day && modifiers && modifiers[toISODateString(day)]
-          && (modifiers[toISODateString(day)].has('invalid-span') || modifiers[toISODateString(day)].has('selected-invalid-end'))) {
+        if (day.isBetween(startDate, endDate, 'days') && !day.isBetween(otrStartDate, otrEndDate, 'days')) {
           lastInvalidWeek = i;
         }
       });
     });
-
     return lastInvalidWeek;
   }
 
@@ -247,7 +246,7 @@ class CalendarMonth extends React.PureComponent {
     const currentMonth = month.clone();
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
-    let lastInvalidWeek = this.getLastInvalidWeek();
+    let lastInvalidWeek = this.getLastInvalidWeek(startDate, endDate);
 
     const lastPeriodMonth = endDate && currentMonth && endDate.month() === currentMonth.month();
 
