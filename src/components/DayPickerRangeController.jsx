@@ -237,7 +237,6 @@ export default class DayPickerRangeController extends React.Component {
       valid: day => !this.isBlocked(day),
       'selected-start': day => this.isStartDate(day),
       'selected-end': day => this.isEndDate(day),
-      'selected-invalid-end': day => this.isEndInvalidDate(day),
       'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
       'selected-span': day => this.isInSelectedSpan(day),
       'invalid-span': day => this.isInInvalidSpan(day),
@@ -487,12 +486,6 @@ export default class DayPickerRangeController extends React.Component {
             } else {
               modifiers = this.deleteModifier(modifiers, momentObj, 'highlighted-calendar');
             }
-          }
-
-          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
-            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
-          } else {
-            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
           }
         });
       });
@@ -1167,24 +1160,6 @@ export default class DayPickerRangeController extends React.Component {
     return isSameDay(day, endDate);
   }
 
-  isEndInvalidDate(day, initialStartDate = null, initialEndDate = null) {
-    const { currentStartDate, currentEndDate } = this.props;
-    const startDate = initialStartDate || currentStartDate;
-    const endDate = initialEndDate || currentEndDate;
-    const month = day.clone().startOf('isoWeek').month();
-
-    return isSameDay(day, endDate) && startDate &&
-      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
-      startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
-      (month == day.month() ||
-        (
-          month != day.month() &&
-          month == day.clone().subtract(1,'month').month() &&
-          month > startDate.month()
-        )
-      );
-  }
-
   isHovered(day) {
     const { hoverDate } = this.state || {};
     const { focusedInput } = this.props;
@@ -1212,7 +1187,7 @@ export default class DayPickerRangeController extends React.Component {
     return day.isBetween(startDate, endDate, 'days');
   }
 
-  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null) {
+  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null, endDateBoolean = false) {
     const { currentStartDate, currentEndDate } = this.props;
     const startDate = initialStartDate || currentStartDate;
     const endDate = initialEndDate || currentEndDate;
@@ -1221,7 +1196,12 @@ export default class DayPickerRangeController extends React.Component {
     }
 
     const { startDate: otrStartDate, endDate: otrEndDate } = getOtrTimeRange(startDate);
-    return day.isBetween(startDate, endDate, 'days') && !day.isBetween(otrStartDate, otrEndDate, 'days') && !day.isSame(otrEndDate);
+    if (!day.isBetween(otrStartDate, otrEndDate, 'days') && !isSameDay(day, otrEndDate)) {
+      if (day.isBetween(startDate, endDate, 'days') || isSameDay(day, endDate)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   checkInvalidDays(startDate, endDate, visibleDays, modifiers = {}) {
@@ -1229,13 +1209,13 @@ export default class DayPickerRangeController extends React.Component {
     values(visibleDays).forEach((days) => {
       Object.keys(days).forEach((day) => {
         const momentObj = getPooledMoment(day);
-        if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
+        if (this.isInInvalidSpan(momentObj, startDate, endDate, true)) {
           newModifiers = this.addModifier(newModifiers, momentObj, 'invalid-span');
         } else {
           newModifiers = this.deleteModifier(newModifiers, momentObj, 'invalid-span');
         }
 
-        if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
+        if (isSameDay(momentObj, endDate) && this.isInInvalidSpan(momentObj, startDate, endDate)) {
           newModifiers = this.addModifier(newModifiers, momentObj, 'selected-invalid-end');
         } else {
           newModifiers = this.deleteModifier(newModifiers, momentObj, 'selected-invalid-end');
