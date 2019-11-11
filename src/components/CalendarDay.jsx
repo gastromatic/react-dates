@@ -254,7 +254,6 @@ export default withStyles(({ reactDates: { color, font } }) => ({
 
     ':hover': {
       background: color.selectedSpan.backgroundColor_hover,
-      border: `1px double ${color.selectedSpan.borderColor}`,
       color: color.selectedSpan.color_active,
     },
 
@@ -300,7 +299,6 @@ export default withStyles(({ reactDates: { color, font } }) => ({
 
     ':hover': {
       background: color.selected.backgroundColor_hover,
-      border: `1px double ${color.selected.borderColor}`,
       color: color.selected.color_active,
     },
 
@@ -318,13 +316,11 @@ export default withStyles(({ reactDates: { color, font } }) => ({
 
     ':hover': {
       background: color.hoveredSpan.backgroundColor_hover,
-      border: `1px double ${color.hoveredSpan.borderColor}`,
       color: color.hoveredSpan.color_active,
     },
 
     ':active': {
       background: color.hoveredSpan.backgroundColor_active,
-      border: `1px double ${color.hoveredSpan.borderColor}`,
       color: color.hoveredSpan.color_active,
     },
   },

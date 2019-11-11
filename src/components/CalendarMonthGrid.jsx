@@ -369,15 +369,16 @@ class CalendarMonthGrid extends React.PureComponent {
               weekNumber++
             }
           });
-          const topMargin =  weekNumber * 30 + 30 || 0;
+          const topMargin =  weekNumber * 30 + 38 || 0;
 
           return (
             <div
               key={monthString}
               {...css(
+                { transition: 'none' },
                 isHorizontal && styles.CalendarMonthGrid_month__horizontal,
                 hideForAnimation && styles.CalendarMonthGrid_month__hideForAnimation,
-                hideForAnimation && {marginTop: -1 * topMargin},
+                hideForAnimation && { marginTop: -1 * topMargin },
                 showForAnimation
                   && !isVertical
                   && !isRTL && {
@@ -391,9 +392,8 @@ class CalendarMonthGrid extends React.PureComponent {
                   right: 0,
                 },
                 showForAnimation
-                  && isVertical && {
-                  position: 'absolute',
-                  top: -translationValue,
+                && isVertical && {
+                  marginTop: -translationValue - 4,
                 },
                 !isVisible && !isAnimating && styles.CalendarMonthGrid_month__hidden,
               )}
@@ -493,12 +493,7 @@ export default withStyles(
     CalendarMonthGrid_month__hideForAnimation: {
       position: 'absolute',
       zIndex: zIndex - 1,
-      opacity: 0,
       pointerEvents: 'none',
-    },
-
-    CalendarMonthGrid_month__hidden: {
-      visibility: 'hidden',
     },
   }),
   { pureComponent: typeof React.PureComponent !== 'undefined' },
