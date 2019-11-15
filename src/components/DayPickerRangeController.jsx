@@ -126,6 +126,7 @@ const propTypes = forbidExtraProps({
   errorMessage: PropTypes.string,
   onChangeModifiers: PropTypes.func,
   onMonthIndexChanged: PropTypes.func,
+  selectedMonth: momentPropTypes.momentObj,
   monthIndex: nonNegativeInteger,
   caption: PropTypes.string.isRequired,
 });
@@ -210,6 +211,7 @@ const defaultProps = {
   isRTL: false,
   missingWeeks: [],
   monthIndex: 1,
+  selectedMonth: null,
 };
 
 const getChooseAvailableDatePhrase = (phrases, focusedInput) => {
@@ -300,6 +302,7 @@ export default class DayPickerRangeController extends React.Component {
       initialVisibleMonth,
       numberOfMonths,
       enableOutsideDays,
+      selectedMonth,
     } = nextProps;
 
     const {
@@ -566,6 +569,10 @@ export default class DayPickerRangeController extends React.Component {
           chooseAvailableDate,
         },
       });
+    }
+
+    if (selectedMonth) {
+      this.onMonthChange(selectedMonth);
     }
   }
 
@@ -1325,6 +1332,7 @@ export default class DayPickerRangeController extends React.Component {
       missingWeeks,
       onFocusChange,
       monthIndex,
+      selectedMonth,
       caption,
     } = this.props;
 
@@ -1405,6 +1413,7 @@ export default class DayPickerRangeController extends React.Component {
         missingWeeks={missingWeeks}
         onFocusChange={onFocusChange}
         monthIndex={monthIndex}
+        selectedMonth={selectedMonth}
         caption={caption}
       />
     );

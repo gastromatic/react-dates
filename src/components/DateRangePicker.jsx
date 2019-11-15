@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { withStyles, withStylesPropTypes } from 'react-with-styles';
+import momentPropTypes from 'react-moment-proptypes';
 import { Portal } from 'react-portal';
 import { forbidExtraProps, nonNegativeInteger } from 'airbnb-prop-types';
 import { addEventListener } from 'consolidated-events';
@@ -56,6 +57,7 @@ const propTypes = forbidExtraProps({
   emptyPeriodMessage: PropTypes.string,
   onChangeModifiers: PropTypes.func,
   onMonthIndexChanged: PropTypes.func,
+  selectedMonth: momentPropTypes.momentObj,
   monthIndex: nonNegativeInteger,
   caption: PropTypes.string.isRequired,
   startDateId: PropTypes.string,
@@ -156,6 +158,7 @@ const defaultProps = {
   showAllCaptions: false,
   emptyPeriodMessage: '',
   monthIndex: 1,
+  selectedMonth: null,
   caption: 'Optimierungszeitraum',
   startDateId: START_DATE,
   endDateId: END_DATE,
@@ -475,6 +478,7 @@ class DateRangePicker extends React.PureComponent {
       showAllCaptions,
       onChangeModifiers,
       onMonthIndexChanged,
+      selectedMonth,
       monthIndex,
       caption,
     } = this.props;
@@ -574,6 +578,7 @@ class DateRangePicker extends React.PureComponent {
           showAllCaptions={showAllCaptions}
           onChangeModifiers={onChangeModifiers}
           onMonthIndexChanged={onMonthIndexChanged}
+          selectedMonth={selectedMonth}
           monthIndex={monthIndex}
           caption={caption}
         />

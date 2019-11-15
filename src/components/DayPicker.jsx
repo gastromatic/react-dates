@@ -137,6 +137,7 @@ const propTypes = forbidExtraProps({
   missingWeeks: PropTypes.object,
   onFocusChange: PropTypes.func,
   monthIndex: nonNegativeInteger,
+  selectedMonth: momentPropTypes.momentObj,
   caption: PropTypes.string.isRequired,
   renderWeekHeaderElement: PropTypes.func,
 });
@@ -210,6 +211,7 @@ export const defaultProps = {
   phrases: DayPickerPhrases,
   dayAriaLabelFormat: undefined,
   monthIndex: 1,
+  selectedMonth: null,
   caption: '',
 };
 
@@ -297,6 +299,7 @@ class DayPicker extends React.PureComponent {
       onBlur,
       renderMonthText,
       horizontalMonthPadding,
+      selectedMonth,
     } = nextProps;
     const { currentMonth } = this.state;
 
@@ -342,6 +345,10 @@ class DayPicker extends React.PureComponent {
       this.setState({
         monthTitleHeight: null,
       });
+    }
+
+    if (selectedMonth) {
+      this.onMonthChange(selectedMonth);
     }
   }
 

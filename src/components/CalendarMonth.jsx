@@ -289,7 +289,7 @@ class CalendarMonth extends React.PureComponent {
               isVisible,
             })
           ) : (
-            <div {...css(styles.DayPicker_activePeriod)} style={{opacity: displayCaption ? 1 : 0}} aria-hidden="true" role="presentation">{activePeriod}</div>
+            <div {...css(styles.DayPicker_activePeriod)} style={{ opacity: displayCaption ? 1 : 0 }} aria-hidden="true" role="presentation">{activePeriod}</div>
           )}
         </div>
 
