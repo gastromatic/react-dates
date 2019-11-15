@@ -90,7 +90,9 @@ const propTypes = forbidExtraProps({
   navNext: PropTypes.node,
   noNavButtons: PropTypes.bool,
   onPrevMonthClick: PropTypes.func,
+  onPrevMonthTransition: PropTypes.func,
   onNextMonthClick: PropTypes.func,
+  onNextMonthTransition: PropTypes.func,
   onMonthChange: PropTypes.func,
   onYearChange: PropTypes.func,
   onMultiplyScrollableMonths: PropTypes.func, // VERTICAL_SCROLLABLE daypickers only
@@ -135,6 +137,7 @@ const propTypes = forbidExtraProps({
   missingWeeks: PropTypes.object,
   onFocusChange: PropTypes.func,
   monthIndex: nonNegativeInteger,
+  selectedMonth: momentPropTypes.momentObj,
   caption: PropTypes.string.isRequired,
   renderWeekHeaderElement: PropTypes.func,
 });
@@ -174,7 +177,9 @@ export const defaultProps = {
   navNext: null,
   noNavButtons: false,
   onPrevMonthClick() {},
+  onPrevMonthTransition() {},
   onNextMonthClick() {},
+  onNextMonthTransition() {},
   onMonthChange() {},
   onYearChange() {},
   onMultiplyScrollableMonths() {},
@@ -206,6 +211,7 @@ export const defaultProps = {
   phrases: DayPickerPhrases,
   dayAriaLabelFormat: undefined,
   monthIndex: 1,
+  selectedMonth: null,
   caption: '',
 };
 
@@ -293,6 +299,7 @@ class DayPicker extends React.PureComponent {
       onBlur,
       renderMonthText,
       horizontalMonthPadding,
+      selectedMonth,
     } = nextProps;
     const { currentMonth } = this.state;
 
@@ -338,6 +345,10 @@ class DayPicker extends React.PureComponent {
       this.setState({
         monthTitleHeight: null,
       });
+    }
+
+    if (selectedMonth) {
+      this.onMonthChange(selectedMonth);
     }
   }
 
@@ -501,6 +512,8 @@ class DayPicker extends React.PureComponent {
 
   onPrevMonthClick(e) {
     if (e) e.preventDefault();
+    const { onPrevMonthTransition } = this.props;
+    if (onPrevMonthTransition) onPrevMonthTransition();
     this.onPrevMonthTransition();
   }
 
@@ -564,6 +577,8 @@ class DayPicker extends React.PureComponent {
 
   onNextMonthClick(e) {
     if (e) e.preventDefault();
+    const { onNextMonthTransition } = this.props;
+    if (onNextMonthTransition) onNextMonthTransition();
     this.onNextMonthTransition();
   }
 

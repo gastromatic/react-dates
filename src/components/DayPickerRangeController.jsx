@@ -22,6 +22,7 @@ import isDayVisible from '../utils/isDayVisible';
 import getSelectedDateOffset from '../utils/getSelectedDateOffset';
 
 import toISODateString from '../utils/toISODateString';
+import getOtrTimeRange from '../utils/getOtrTimeRange';
 import { addModifier, deleteModifier } from '../utils/modifiers';
 
 import DisabledShape from '../shapes/DisabledShape';
@@ -91,7 +92,9 @@ const propTypes = forbidExtraProps({
   noNavButtons: PropTypes.bool,
 
   onPrevMonthClick: PropTypes.func,
+  onPrevMonthTransition: PropTypes.func,
   onNextMonthClick: PropTypes.func,
+  onNextMonthTransition: PropTypes.func,
   onOutsideClick: PropTypes.func,
   renderCalendarDay: PropTypes.func,
   renderDayContents: PropTypes.func,
@@ -123,6 +126,7 @@ const propTypes = forbidExtraProps({
   errorMessage: PropTypes.string,
   onChangeModifiers: PropTypes.func,
   onMonthIndexChanged: PropTypes.func,
+  selectedMonth: momentPropTypes.momentObj,
   monthIndex: nonNegativeInteger,
   caption: PropTypes.string.isRequired,
 });
@@ -167,7 +171,9 @@ const defaultProps = {
   onChangeModifiers: () => {},
   onMonthIndexChanged: () => {},
   onPrevMonthClick() {},
+  onPrevMonthTransition() {},
   onNextMonthClick() {},
+  onNextMonthTransition() {},
   onOutsideClick() {},
 
   renderCalendarDay: undefined,
@@ -205,6 +211,7 @@ const defaultProps = {
   isRTL: false,
   missingWeeks: [],
   monthIndex: 1,
+  selectedMonth: null,
 };
 
 const getChooseAvailableDatePhrase = (phrases, focusedInput) => {
@@ -232,7 +239,6 @@ export default class DayPickerRangeController extends React.Component {
       valid: day => !this.isBlocked(day),
       'selected-start': day => this.isStartDate(day),
       'selected-end': day => this.isEndDate(day),
-      'selected-invalid-end': day => this.isEndInvalidDate(day),
       'blocked-minimum-nights': day => this.doesNotMeetMinimumNights(day),
       'selected-span': day => this.isInSelectedSpan(day),
       'invalid-span': day => this.isInInvalidSpan(day),
@@ -271,7 +277,9 @@ export default class DayPickerRangeController extends React.Component {
     this.onDayMouseEnter = this.onDayMouseEnter.bind(this);
     this.onDayMouseLeave = this.onDayMouseLeave.bind(this);
     this.onPrevMonthClick = this.onPrevMonthClick.bind(this);
+    this.onPrevMonthTransition = this.onBeforeMonthTransition.bind(this);
     this.onNextMonthClick = this.onNextMonthClick.bind(this);
+    this.onNextMonthTransition = this.onBeforeMonthTransition.bind(this);
     this.onMonthChange = this.onMonthChange.bind(this);
     this.onYearChange = this.onYearChange.bind(this);
     this.onMultiplyScrollableMonths = this.onMultiplyScrollableMonths.bind(this);
@@ -294,6 +302,7 @@ export default class DayPickerRangeController extends React.Component {
       initialVisibleMonth,
       numberOfMonths,
       enableOutsideDays,
+      selectedMonth,
     } = nextProps;
 
     const {
@@ -355,7 +364,7 @@ export default class DayPickerRangeController extends React.Component {
       this.setState({
         currentMonth,
         visibleDays,
-      }, () => {this.updateModifiersParent()});
+      }, () => { this.updateModifiersParent(); });
     }
 
     let modifiers = {};
@@ -373,26 +382,11 @@ export default class DayPickerRangeController extends React.Component {
     if (didEndDateChange) {
       modifiers = this.deleteModifier(modifiers, prevEndDate, 'selected-end');
       modifiers = this.addModifier(modifiers, endDate, 'selected-end');
-
-      values(visibleDays).forEach((days) => {
-        Object.keys(days).forEach((day) => {
-          const momentObj = getPooledMoment(day);
-          if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
-            modifiers = this.addModifier(modifiers, momentObj, 'invalid-span');
-          } else {
-            modifiers = this.deleteModifier(modifiers, momentObj, 'invalid-span');
-          }
-
-          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
-            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
-          } else {
-            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
-          }
-        })
-      })
     }
 
+
     if (didStartDateChange || didEndDateChange) {
+      modifiers = this.checkInvalidDays(startDate, endDate, visibleDays, modifiers);
       if (prevStartDate && prevEndDate) {
         modifiers = this.deleteModifierFromRange(
           modifiers,
@@ -496,17 +490,6 @@ export default class DayPickerRangeController extends React.Component {
               modifiers = this.deleteModifier(modifiers, momentObj, 'highlighted-calendar');
             }
           }
-
-          if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
-            modifiers = this.addModifier(modifiers, momentObj, 'invalid-span');
-          } else {
-            modifiers = this.deleteModifier(modifiers, momentObj, 'invalid-span');
-          }
-          if (this.isEndInvalidDate(momentObj, startDate, endDate)) {
-            modifiers = this.addModifier(modifiers, momentObj, 'selected-invalid-end');
-          } else {
-            modifiers = this.deleteModifier(modifiers, momentObj, 'selected-invalid-end');
-          }
         });
       });
     }
@@ -586,6 +569,10 @@ export default class DayPickerRangeController extends React.Component {
           chooseAvailableDate,
         },
       });
+    }
+
+    if (selectedMonth) {
+      this.onMonthChange(selectedMonth);
     }
   }
 
@@ -908,7 +895,6 @@ export default class DayPickerRangeController extends React.Component {
 
     const prevMonth = currentMonth.clone().subtract(2, 'months');
     const prevMonthVisibleDays = getVisibleDays(prevMonth, 1, enableOutsideDays, true);
-
     const newCurrentMonth = currentMonth.clone().subtract(1, 'month');
     this.setState({
       currentMonth: newCurrentMonth,
@@ -921,6 +907,18 @@ export default class DayPickerRangeController extends React.Component {
     }, () => {
       onPrevMonthClick(newCurrentMonth.clone());
       this.updateModifiersParent();
+    });
+  }
+
+  onBeforeMonthTransition() {
+    const { startDate, endDate } = this.props;
+    const { visibleDays } = this.state;
+    const modifiers = this.checkInvalidDays(startDate, endDate, visibleDays);
+    this.setState({
+      visibleDays: {
+        ...visibleDays,
+        ...modifiers,
+      },
     });
   }
 
@@ -1169,24 +1167,6 @@ export default class DayPickerRangeController extends React.Component {
     return isSameDay(day, endDate);
   }
 
-  isEndInvalidDate(day, initialStartDate = null, initialEndDate = null) {
-    const { currentStartDate, currentEndDate } = this.props;
-    const startDate = initialStartDate || currentStartDate;
-    const endDate = initialEndDate || currentEndDate;
-    const month = day.clone().startOf('isoWeek').month();
-
-    return isSameDay(day, endDate) && startDate &&
-      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
-      startDate.clone().startOf('isoWeek').month() != startDate.month())) &&
-      (month == day.month() ||
-        (
-          month != day.month() &&
-          month == day.clone().subtract(1,'month').month() &&
-          month > startDate.month()
-        )
-      );
-  }
-
   isHovered(day) {
     const { hoverDate } = this.state || {};
     const { focusedInput } = this.props;
@@ -1214,26 +1194,42 @@ export default class DayPickerRangeController extends React.Component {
     return day.isBetween(startDate, endDate, 'days');
   }
 
-  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null) {
+  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null, endDateBoolean = false) {
     const { currentStartDate, currentEndDate } = this.props;
     const startDate = initialStartDate || currentStartDate;
     const endDate = initialEndDate || currentEndDate;
-    const month = day.clone().startOf('isoWeek').month();
+    if (!startDate) {
+      return false;
+    }
 
-    return day.isBetween(startDate, endDate, 'days') && startDate &&
-      (day.month() !== startDate.month() || (day.month() === startDate.month() &&
-      startDate.clone().startOf('isoWeek').month() != startDate.month()) ||
-      (day.month() === startDate.month() &&
-      startDate.clone().startOf('isoWeek').month() === startDate.month() && month < startDate.month())) &&
-      (month == day.month() ||
-        (
-          month != day.month() &&
-          month == day.clone().subtract(1,'month').month() &&
-          month >= startDate.month() &&
-          startDate.clone().startOf('isoWeek').month() != startDate.month()
-        ) || (
-          month != day.month() && startDate.clone().startOf('isoWeek').month() + 1 < day.month()
-      )) ;
+    const { startDate: otrStartDate, endDate: otrEndDate } = getOtrTimeRange(startDate);
+    if (!day.isBetween(otrStartDate, otrEndDate, 'days') && !isSameDay(day, otrEndDate)) {
+      if (day.isBetween(startDate, endDate, 'days') || isSameDay(day, endDate)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  checkInvalidDays(startDate, endDate, visibleDays, modifiers = {}) {
+    let newModifiers = _.cloneDeep(modifiers);
+    values(visibleDays).forEach((days) => {
+      Object.keys(days).forEach((day) => {
+        const momentObj = getPooledMoment(day);
+        if (this.isInInvalidSpan(momentObj, startDate, endDate, true)) {
+          newModifiers = this.addModifier(newModifiers, momentObj, 'invalid-span');
+        } else {
+          newModifiers = this.deleteModifier(newModifiers, momentObj, 'invalid-span');
+        }
+
+        if (isSameDay(momentObj, endDate) && this.isInInvalidSpan(momentObj, startDate, endDate)) {
+          newModifiers = this.addModifier(newModifiers, momentObj, 'selected-invalid-end');
+        } else {
+          newModifiers = this.deleteModifier(newModifiers, momentObj, 'selected-invalid-end');
+        }
+      });
+    });
+    return newModifiers;
   }
 
   isInMissingSpan(day) {
@@ -1336,6 +1332,7 @@ export default class DayPickerRangeController extends React.Component {
       missingWeeks,
       onFocusChange,
       monthIndex,
+      selectedMonth,
       caption,
     } = this.props;
 
@@ -1359,7 +1356,9 @@ export default class DayPickerRangeController extends React.Component {
         onDayMouseEnter={this.onDayMouseEnter}
         onDayMouseLeave={this.onDayMouseLeave}
         onPrevMonthClick={this.onPrevMonthClick}
+        onPrevMonthTransition={this.onPrevMonthTransition}
         onNextMonthClick={this.onNextMonthClick}
+        onNextMonthTransition={this.onNextMonthTransition}
         onMonthChange={this.onMonthChange}
         onTab={onTab}
         onShiftTab={onShiftTab}
@@ -1414,6 +1413,7 @@ export default class DayPickerRangeController extends React.Component {
         missingWeeks={missingWeeks}
         onFocusChange={onFocusChange}
         monthIndex={monthIndex}
+        selectedMonth={selectedMonth}
         caption={caption}
       />
     );
