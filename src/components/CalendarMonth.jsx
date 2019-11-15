@@ -246,7 +246,7 @@ class CalendarMonth extends React.PureComponent {
     const currentMonth = month.clone();
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
-    let lastInvalidWeek = this.getLastInvalidWeek(startDate, endDate);
+    let lastInvalidWeek = startDate && this.getLastInvalidWeek(startDate, endDate);
 
     const lastPeriodMonth = endDate && currentMonth && endDate.month() === currentMonth.month();
 
