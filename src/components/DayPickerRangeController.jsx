@@ -1194,8 +1194,8 @@ export default class DayPickerRangeController extends React.Component {
     return day.isBetween(startDate, endDate, 'days');
   }
 
-  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null, endDateBoolean = false) {
-    const { currentStartDate, currentEndDate } = this.props;
+  isInInvalidSpan(day, initialStartDate = null, initialEndDate = null) {
+    const { startDate: currentStartDate, endDate: currentEndDate } = this.props;
     const startDate = initialStartDate || currentStartDate;
     const endDate = initialEndDate || currentEndDate;
     if (!startDate) {
@@ -1216,7 +1216,7 @@ export default class DayPickerRangeController extends React.Component {
     values(visibleDays).forEach((days) => {
       Object.keys(days).forEach((day) => {
         const momentObj = getPooledMoment(day);
-        if (this.isInInvalidSpan(momentObj, startDate, endDate, true)) {
+        if (this.isInInvalidSpan(momentObj, startDate, endDate)) {
           newModifiers = this.addModifier(newModifiers, momentObj, 'invalid-span');
         } else {
           newModifiers = this.deleteModifier(newModifiers, momentObj, 'invalid-span');
