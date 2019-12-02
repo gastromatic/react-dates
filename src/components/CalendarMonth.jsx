@@ -253,7 +253,7 @@ class CalendarMonth extends React.PureComponent {
     const isFirstDay = currentMonth.clone().startOf('month').isoWeekday() === 1;
     const firstWeekIndex = currentMonth.clone().startOf('month').add(isFirstDay ? 0 : 1, 'weeks').isoWeek();
     const lastWeekIndex = currentMonth.clone().endOf('month').isoWeek();
-    const activePeriod = `${caption} ${currentMonth.month() + 1} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
+    const activePeriod = `${caption} (KW ${firstWeekIndex} - KW ${lastWeekIndex})`;
 
 
     const currentMonthIndex = currentMonth.month();
