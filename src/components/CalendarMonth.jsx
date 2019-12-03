@@ -198,7 +198,7 @@ class CalendarMonth extends React.PureComponent {
 
     weeks.forEach((week, i) => {
       week.forEach((day) => {
-        if (day.isBetween(startDate, endDate, 'days') && !day.isBetween(otrStartDate, otrEndDate, 'days')) {
+        if (day.isBetween(startDate, endDate, 'days', '(]') && !day.isBetween(otrStartDate, otrEndDate, 'days', '(]')) {
           lastInvalidWeek = i;
         }
       });
@@ -246,9 +246,9 @@ class CalendarMonth extends React.PureComponent {
     const currentMonth = month.clone();
     const verticalScrollable = orientation === VERTICAL_SCROLLABLE;
 
-    let lastInvalidWeek = startDate && this.getLastInvalidWeek(startDate, endDate);
+    const lastInvalidWeek = startDate && this.getLastInvalidWeek(startDate, endDate);
 
-    const lastPeriodMonth = endDate && currentMonth && endDate.month() === currentMonth.month();
+    const lastPeriodMonth = endDate && currentMonth && endDate.clone().startOf('week').month() === currentMonth.month();
 
     const isFirstDay = currentMonth.clone().startOf('month').isoWeekday() === 1;
     const firstWeekIndex = currentMonth.clone().startOf('month').add(isFirstDay ? 0 : 1, 'weeks').isoWeek();
@@ -304,42 +304,46 @@ class CalendarMonth extends React.PureComponent {
         >
           <tbody>
             {weeks.map((week, i) => {
-              let res = !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
-                [<CalendarWeek key={i}>
-                  <td className={`${styles.CalendarMonth_weekNumber} ${week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].isoWeek()}`] ? 'missingWeek' : ''}`} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
-                    {i === 0 && Number(week[0] && week[0].date()) > 7
-                      ? ''
-                      : `${week[0] && week[0].isoWeek()}`}
-                  </td>
-                  {week.map((day, dayOfWeek) => renderCalendarDay({
-                    key: dayOfWeek,
-                    day,
-                    daySize,
-                    isOutsideDay: !day || day.month() !== month.month(),
-                    tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
-                    isFocused,
-                    onDayMouseEnter,
-                    onDayMouseLeave,
-                    onDayClick,
-                    renderDayContents,
-                    phrases,
-                    modifiers: modifiers[toISODateString(day)],
-                    ariaLabelFormat: dayAriaLabelFormat,
-                    currentMonth,
-                    monthIndex,
-                  }))}
-                  <td className={styles.CalendarMonth_month}>
-                    {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}</div> : ''}
-                    {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
-                      ? <div>{month
-                        .clone()
-                        .add(1, 'month')
-                        .format(monthFormat)}
-                        <div className="divider"></div>
-                      </div>
-                      : ''}
-                  </td>
-                </CalendarWeek>,
+              const res = !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
+                [
+                  <CalendarWeek key={i}>
+                    <td className={`${styles.CalendarMonth_weekNumber} ${week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].isoWeek()}`] ? 'missingWeek' : ''}`} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                      {i === 0 && Number(week[0] && week[0].date()) > 7
+                        ? ''
+                        : `${week[0] && week[0].isoWeek()}`}
+                    </td>
+                    {week.map((day, dayOfWeek) => renderCalendarDay({
+                      key: dayOfWeek,
+                      day,
+                      daySize,
+                      isOutsideDay: !day || day.month() !== month.month(),
+                      tabIndex: isVisible && isSameDay(day, focusedDate) ? 0 : -1,
+                      isFocused,
+                      onDayMouseEnter,
+                      onDayMouseLeave,
+                      onDayClick,
+                      renderDayContents,
+                      phrases,
+                      modifiers: modifiers[toISODateString(day)],
+                      ariaLabelFormat: dayAriaLabelFormat,
+                      currentMonth,
+                      monthIndex,
+                    }))}
+                    <td className={styles.CalendarMonth_month}>
+                      {(i === 0 && Number(week[0] && week[0].date()) < 8) || (startWeek === null && monthIndex === 1) ? <div>{monthTitle}</div> : ''}
+                      {i === weeks.length - 1 && Number(week[6] && week[6].date()) < 7
+                        ? (
+                          <div>
+                            {month
+                              .clone()
+                              .add(1, 'month')
+                              .format(monthFormat)}
+                            <div className="divider" />
+                          </div>
+                        )
+                        : ''}
+                    </td>
+                  </CalendarWeek>,
                   lastInvalidWeek === i && lastPeriodMonth && errorMessage ? (
                     <CalendarWeek key={`${i}_error`}>
                       <td className={styles.CalendarMonth_invalidWeek} />
@@ -354,8 +358,8 @@ class CalendarMonth extends React.PureComponent {
                       <td />
                     </CalendarWeek>
                   ) : null,
-                ]) : null
-                startWeek = res ? i : null;
+                ]) : null;
+              startWeek = res ? i : null;
               return res;
             })}
           </tbody>
