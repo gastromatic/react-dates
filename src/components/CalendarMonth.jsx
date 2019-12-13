@@ -307,7 +307,7 @@ class CalendarMonth extends React.PureComponent {
               const res = !(i === 0 && Number(week[0] && week[0].date()) > 7) ? (
                 [
                   <CalendarWeek key={i}>
-                    <td className={`${styles.CalendarMonth_weekNumber} ${week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].year()}${week[0] && week[0].isoWeek()}`] ? 'missingWeek' : ''}`} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
+                    <td className={`${styles.CalendarMonth_weekNumber} ${week[0] && missingWeeks && missingWeeks[`${week[0] && week[0].weekYear()}${week[0] && week[0].format('WW')}`] ? 'missingWeek' : ''}`} onClick={() => { this.setWeek({ startDate: week[0], endDate: week[6] }); }}>
                       {i === 0 && Number(week[0] && week[0].date()) > 7
                         ? ''
                         : `${week[0] && week[0].isoWeek()}`}

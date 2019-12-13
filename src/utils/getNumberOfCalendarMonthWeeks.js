@@ -11,5 +11,5 @@ export default function getNumberOfCalendarMonthWeeks(
 ) {
   const firstDayOfMonth = month.clone().startOf('month');
   const numBlankDays = getBlankDaysBeforeFirstDay(firstDayOfMonth, firstDayOfWeek);
-  return Math.ceil((numBlankDays + month.daysInMonth()) / 7);
+  return Math.ceil((numBlankDays + month.daysInMonth()) / 7) - (firstDayOfMonth.day() === 1 ? 0 : 1);
 }

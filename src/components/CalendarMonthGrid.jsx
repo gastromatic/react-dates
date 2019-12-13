@@ -328,10 +328,8 @@ class CalendarMonthGrid extends React.PureComponent {
       }
     });
 
-    const delta = 33;
-    const tr = translationValue > 0 ? translationValue : (translationValue < 0 ? translationValue + delta : 0);
     const transformType = (isVertical || isVerticalScrollable) ? 'translateY' : 'translateX';
-    const transformValue = `${transformType}(${tr}px)`;
+    const transformValue = `${transformType}(${translationValue}px)`;
 
     return (
       <div

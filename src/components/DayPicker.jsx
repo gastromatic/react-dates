@@ -523,7 +523,8 @@ class DayPicker extends React.PureComponent {
 
     let translationValue;
     if (this.isVertical()) {
-      const calendarMonthWeeksHeight = this.calendarMonthWeeks[0] * (daySize - 1);
+      const firstVisibleMonthWeeks = this.calendarMonthWeeks[0];
+      const calendarMonthWeeksHeight = firstVisibleMonthWeeks * (daySize - 1);
       translationValue = monthTitleHeight + calendarMonthWeeksHeight + 1;
     } else if (this.isHorizontal()) {
       translationValue = calendarMonthWidth;

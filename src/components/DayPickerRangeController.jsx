@@ -1234,7 +1234,7 @@ export default class DayPickerRangeController extends React.Component {
 
   isInMissingSpan(day) {
     const { missingWeeks } = this.props;
-    const key = day ? `${day.year()}${day.isoWeek()}` : '';
+    const key = day ? `${day.weekYear()}${day.format('WW')}` : '';
     return missingWeeks[key];
   }
 
